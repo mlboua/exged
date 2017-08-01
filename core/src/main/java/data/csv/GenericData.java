@@ -1,0 +1,68 @@
+package data.csv;
+
+import data.Data;
+import data.Fold;
+import exception.ExgedCoreException;
+import identifier.csv.CsvIdentifier;
+import identifier.csv.CsvIdentifierValidation;
+
+import java.util.*;
+import java.util.stream.Stream;
+
+public class GenericData implements Data {
+
+    private final Map<String, Integer> headers;
+    private final List<CsvIdentifier> identifiers;
+    private final List<List<String>> rows;
+
+    public GenericData(List<CsvIdentifier> identifiers, List<List<String>> rows) {
+        this.identifiers = identifiers;
+        this.rows = rows;
+        this.headers = null;
+    }
+
+    public GenericData(List<CsvIdentifier> identifiers, Map<String, Integer> headers, List<List<String>> rows) {
+        this.headers = headers;
+        this.identifiers = identifiers;
+        this.rows = rows;
+    }
+
+    public int getIndexByHeader(String header) {
+        return headers != null ? headers.get(header) : -1;
+    }
+
+    @Override
+    public Stream<List<String>> stream() {
+        return rows.stream();
+    }
+
+    @Override
+    public Stream<Fold> foldStream() {
+        Stream.Builder<Fold> streamFold = Stream.builder();
+        final CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
+        final Map<String, List<List<String>>> foldTemp = new HashMap<>();
+        this.stream().forEach(row -> {
+            Optional<CsvIdentifier> identifier = csvIdentifierValidation.validate(identifiers, row);
+            if (identifier.isPresent()) {
+                String idRow = row.get(identifier.get().getIndex());
+                if (foldTemp.containsKey(idRow)) {
+                    foldTemp.get(idRow).add(row);
+                } else {
+                    List<List<String>> tempData = new ArrayList<>();
+                    tempData.add(row);
+                    foldTemp.put(idRow, tempData);
+                }
+            }
+        });
+        foldTemp.forEach((id, rows) -> streamFold.add(new CsvFold(id, rows)));
+        return streamFold.build();
+    }
+
+    @Override
+    public String toString() {
+        return "GenericData{" +
+                "headers.size()=" + headers.size() +
+                ", rows.size()=" + rows.size() +
+                '}';
+    }
+}

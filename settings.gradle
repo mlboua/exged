@@ -1,0 +1,5 @@
+rootProject.name = 'exged'
+include 'parser'
+include 'core'
+include 'validation'
+

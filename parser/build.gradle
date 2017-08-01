@@ -1,0 +1,28 @@
+group 'com.capgemini'
+version '2.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
+    compile group: 'com.univocity', name: 'univocity-parsers', version: '2.5.1'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0.pr4'
+    // jackason w/ jdk8
+    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.0.pr4"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.0.pr4"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.0.pr4"
+
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    compile group: 'com.google.guava', name: 'guava', version: '22.0'
+
+    compile project(":core")
+    compile project(":validation")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
