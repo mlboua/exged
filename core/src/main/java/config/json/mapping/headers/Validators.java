@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Validators {
-    private Optional<List<String>> simple;
-    private Optional<List<GenericNameWithArguments>> complex;
+    private Optional<List<String>> simple = Optional.empty();
+    private Optional<List<GenericNameWithArguments>> complex = Optional.empty();
 
     public Validators() {
     }

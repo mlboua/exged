@@ -2,15 +2,15 @@ package validator.simple.validators;
 
 import data.Fold;
 import validator.Reject;
-import validator.simple.SimpleValidationCondition;
 import validator.ValidatorAnnotation;
+import validator.simple.SimpleValidationCondition;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ValidatorAnnotation(name = "notNull")
+@ValidatorAnnotation(name = "notNull", type = "simple")
 public class notNull implements SimpleValidationCondition {
 
     @Override

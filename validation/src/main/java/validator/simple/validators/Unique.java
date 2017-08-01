@@ -1,17 +1,17 @@
 package validator.simple.validators;
 
 import data.Fold;
-import validator.Reject;
-import validator.simple.SimpleValidationCondition;
-import validator.ValidatorAnnotation;
 import exception.ExgedValidatorException;
+import validator.Reject;
+import validator.ValidatorAnnotation;
+import validator.simple.SimpleValidationCondition;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ValidatorAnnotation(name = "unique")
+@ValidatorAnnotation(name = "unique", type = "simple")
 public class Unique implements SimpleValidationCondition {
 
     @Override

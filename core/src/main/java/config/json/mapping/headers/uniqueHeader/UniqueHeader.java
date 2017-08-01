@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public class UniqueHeader {
     private String name;
-    private Optional<Validators> validators;
-    private Optional<GenericNameWithArguments> converter;
-    private Optional<String> rename;
+    private Optional<Validators> validators = Optional.empty();
+    private Optional<GenericNameWithArguments> converter = Optional.empty();
+    private Optional<String> rename = Optional.empty();
 
     public UniqueHeader() {
     }

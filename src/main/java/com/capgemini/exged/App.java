@@ -6,6 +6,7 @@ import exception.ExgedParserException;
 import identifier.csv.CsvIdentifier;
 import reader.csv.CsvReader;
 import reader.json.JsonConfigReader;
+import validator.GenericValidator;
 import validator.Reject;
 
 import java.io.File;
@@ -27,7 +28,9 @@ public class App {
         try {
             List<CsvIdentifier> identifierList = JsonConfigReader.readJsonIdentifier(new File("config/foldDetection.json")).stream().map(CsvIdentifier::new).collect(Collectors.toList());
 
-            JsonConfigReader.readJsonMapperHeaders(new File("config/mappingHeaders.json"));
+            new GenericValidator(JsonConfigReader.readJsonMapperHeaders(new File("config/mappingHeaders.json")));
+
+
             CsvReader reader = new CsvReader(true, identifierList);
             Instant b = Instant.now();
 
@@ -35,9 +38,7 @@ public class App {
             //reader.splitFile(new File("test.csv"), new File("testFolder"), 10000, identifierList);
             reader.readFolderParallel(new File("testFolder")) // Read lines to -> List<List<String>>
                     .flatMap(Data::foldStream) // FilesRows -> Rows -> Folds
-                    .forEach(fold -> {
-
-                    });
+            ;
 
             System.out.println(Arrays.stream(Package.getPackages()).filter(aPackage -> aPackage.getName().contains("validator")).findFirst());
 
