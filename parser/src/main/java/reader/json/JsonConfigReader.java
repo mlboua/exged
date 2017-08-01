@@ -1,20 +1,29 @@
 package reader.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import config.json.mapping.headers.MappingFold;
 import exception.ExgedParserException;
 import identifier.Identifier;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.function.Function;
 
 public class JsonConfigReader {
 
-    public static List<Identifier> readJsonIdentifier(File file) throws IOException, ExgedParserException {
-        ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper;
+
+    static {
+        mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
+    }
+
+
+    private JsonConfigReader() {
+    }
+
+    public static List<Identifier> readJsonIdentifier(File file) throws IOException, ExgedParserException {
+
         List<Identifier> identifierUnorderedList = new ArrayList<>(Arrays.asList(mapper.readValue(file, Identifier[].class)));
 
         if (identifierUnorderedList.stream().filter(identifier -> !identifier.getReplacedBy().isPresent()).count() > 1) {
@@ -37,5 +46,11 @@ public class JsonConfigReader {
         }
         Collections.reverse(reversedList);
         return reversedList;
+    }
+
+    public static void readJsonMapperHeaders(File file) throws IOException {
+        MappingFold mappingFold = mapper.readValue(file, MappingFold.class);
+        System.out.println(mappingFold);
+
     }
 }

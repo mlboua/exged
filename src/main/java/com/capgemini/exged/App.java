@@ -26,6 +26,8 @@ public class App {
 
         try {
             List<CsvIdentifier> identifierList = JsonConfigReader.readJsonIdentifier(new File("config/foldDetection.json")).stream().map(CsvIdentifier::new).collect(Collectors.toList());
+
+            JsonConfigReader.readJsonMapperHeaders(new File("config/mappingHeaders.json"));
             CsvReader reader = new CsvReader(true, identifierList);
             Instant b = Instant.now();
 
@@ -36,7 +38,6 @@ public class App {
                     .forEach(fold -> {
 
                     });
-            ;
 
             System.out.println(Arrays.stream(Package.getPackages()).filter(aPackage -> aPackage.getName().contains("validator")).findFirst());
 
