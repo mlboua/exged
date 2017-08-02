@@ -1,0 +1,66 @@
+[
+  {
+    "code": "Generic-1",
+    "detail": "Valeur Obligatoire non présente",
+    "validators": {
+      "simple": [
+        "notNull",
+        "notEmpty"
+      ]
+    }
+  },
+  {
+    "code": "Generic-2",
+    "detail": "Pli incohérent (valeurs différentes pour un même attribut)",
+    "validators": {
+      "simple": [
+        "unique"
+      ]
+    }
+  },
+  {
+    "code": "Generic-3",
+    "detail": "Plusieurs chemins PDF pour le même document",
+    "validators": {
+      "simple": [
+        "isSingleFile"
+      ]
+    }
+  },
+  {
+    "code": "Generic-4",
+    "detail": "Fichier physiquement absent sur le système",
+    "validators": {
+      "simple": [
+        "fileExist"
+      ]
+    }
+  },
+  {
+    "code": "Generic-5",
+    "detail": "",
+    "validators": {
+      "simple": [
+        "fileExist"
+      ]
+    }
+  },
+  {
+    "code": "ALLUR/ADHPR-1",
+    "detail": "Plus d'une distribution GED",
+    "validators": {
+      "simple": [
+        "isSingleGEDDistribution"
+      ]
+    }
+  },
+  {
+    "code": "ALLUR/ADHPR-2",
+    "detail": "Distribution courrier rejetée",
+    "validators": {
+      "simple": [
+        "isDistribReject"
+      ]
+    }
+  }
+]

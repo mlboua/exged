@@ -2,4 +2,6 @@ rootProject.name = 'exged'
 include 'parser'
 include 'core'
 include 'validation'
+include 'conversion'
+include 'render'
 

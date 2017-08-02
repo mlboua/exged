@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import config.json.mapping.headers.MappingHeaders;
+import config.json.mapping.reject.MappingReject;
 import exception.ExgedParserException;
 import identifier.Identifier;
 
@@ -50,7 +51,11 @@ public class JsonConfigReader {
         return reversedList;
     }
 
-    public static MappingHeaders readJsonMapperHeaders(File file) throws IOException {
+    public static MappingHeaders readJsonMappingHeaders(File file) throws IOException {
         return mapper.readValue(file, MappingHeaders.class);
+    }
+
+    public static List<MappingReject> readJsonMappingReject(File file) throws IOException {
+        return Arrays.asList(mapper.readValue(file, MappingReject[].class));
     }
 }

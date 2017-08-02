@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @FunctionalInterface
 public interface MultiHeaderValidationCondition {
-    Optional<Reject> validate(final String rejectCode, final Fold fold, final List<String> headerValidation, final Map<String, Integer> headers, final String... complexValidation) throws ExgedValidatorException;
+    Optional<Reject> validate(final String rejectCode, final Fold fold, final List<MultiHeadersValidator> multiHeadersValidatorList, final Map<String, Integer> headers) throws ExgedValidatorException;
 }

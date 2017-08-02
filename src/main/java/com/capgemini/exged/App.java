@@ -26,13 +26,15 @@ public class App {
 
 
         try {
+            Instant b = Instant.now();
             List<CsvIdentifier> identifierList = JsonConfigReader.readJsonIdentifier(new File("config/foldDetection.json")).stream().map(CsvIdentifier::new).collect(Collectors.toList());
 
-            new GenericValidator(JsonConfigReader.readJsonMapperHeaders(new File("config/mappingHeaders.json")));
+            new GenericValidator(JsonConfigReader.readJsonMappingHeaders(new File("config/mappingHeaders.json")),
+                    JsonConfigReader.readJsonMappingReject(new File("config/mappingReject.json")));
 
 
             CsvReader reader = new CsvReader(true, identifierList);
-            Instant b = Instant.now();
+
 
             Map<Optional<Reject>, List<Fold>> data;
             //reader.splitFile(new File("test.csv"), new File("testFolder"), 10000, identifierList);

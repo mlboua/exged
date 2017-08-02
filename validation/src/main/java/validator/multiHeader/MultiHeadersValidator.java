@@ -1,18 +1,17 @@
 package validator.multiHeader;
 
 import java.util.List;
-import java.util.Optional;
 
 public class MultiHeadersValidator {
 
     private String name;
     private List<String> headers;
-    private Optional<List<String>> arguments;
+    private List<String> arguments;
 
     public MultiHeadersValidator() {
     }
 
-    public MultiHeadersValidator(String name, List<String> headers, Optional<List<String>> arguments) {
+    public MultiHeadersValidator(String name, List<String> headers, List<String> arguments) {
         this.name = name;
         this.headers = headers;
         this.arguments = arguments;
@@ -26,7 +25,7 @@ public class MultiHeadersValidator {
         return headers;
     }
 
-    public Optional<List<String>> getArguments() {
+    public List<String> getArguments() {
         return arguments;
     }
 
@@ -38,7 +37,7 @@ public class MultiHeadersValidator {
         this.headers = headers;
     }
 
-    public void setArguments(Optional<List<String>> arguments) {
+    public void setArguments(List<String> arguments) {
         this.arguments = arguments;
     }
 }

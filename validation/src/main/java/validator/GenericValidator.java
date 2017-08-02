@@ -1,6 +1,7 @@
 package validator;
 
 import config.json.mapping.headers.MappingHeaders;
+import config.json.mapping.reject.MappingReject;
 import data.Fold;
 import org.reflections.Reflections;
 import validator.complex.ComplexValidationCondition;
@@ -31,9 +32,12 @@ public class GenericValidator implements Validator {
                 .collect(Collectors.toMap(GenericValidator::getValidatorName, GenericValidator::createComplexValidatorInstance));
     }
 
-    public GenericValidator(MappingHeaders mappingHeaders) {
-        final Map<String, List<String>> simpleValidatorsToHeadersMap = simpleConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
-        final Map<String, List<ComplexValidator>> complexValidatorsToHeadersMap = complexConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
+    private final Map<String, List<String>> simpleValidatorsToHeadersMap;
+    private final Map<String, List<ComplexValidator>> complexValidatorsToHeadersMap;
+
+    public GenericValidator(MappingHeaders mappingHeaders, List<MappingReject> mappingReject) {
+        simpleValidatorsToHeadersMap = simpleConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
+        complexValidatorsToHeadersMap = complexConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
         mappingHeaders.getUniqueHeader().forEach(uniqueHeader -> {
             if (uniqueHeader.getValidators().isPresent() && uniqueHeader.getValidators().get().getSimple().isPresent()) {
                 uniqueHeader.getValidators().get().getSimple().get().forEach(validator -> {
@@ -51,7 +55,7 @@ public class GenericValidator implements Validator {
             }
         });
 
-        System.out.println(complexValidatorsToHeadersMap);
+        System.out.println(mappingReject);
 
     }
 

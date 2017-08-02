@@ -2,7 +2,7 @@ package config.json.mapping.headers.uniqueHeader;
 
 
 import config.json.GenericNameWithArguments;
-import config.json.mapping.headers.Validators;
+import config.json.mapping.validators.Validators;
 
 import java.util.Optional;
 

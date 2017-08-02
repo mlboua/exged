@@ -1,6 +1,6 @@
 package config.json.mapping.headers.multiHeader;
 
-import config.json.mapping.headers.Validators;
+import config.json.mapping.validators.Validators;
 
 import java.util.List;
 

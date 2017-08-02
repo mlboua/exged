@@ -1,4 +1,4 @@
-package config.json.mapping.headers;
+package config.json.mapping.validators;
 
 import config.json.GenericNameWithArguments;
 

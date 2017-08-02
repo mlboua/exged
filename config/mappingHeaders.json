@@ -1,0 +1,83 @@
+{
+  "multiHeaders": [
+    {
+      "name": "allur-distribution",
+      "headers": [
+        "CO_TYPE_DISTRI",
+        "CO_STATUT"
+      ],
+      "validators": {
+        "simple": [
+          "exged-distribution"
+        ]
+      }
+    }
+  ],
+  "uniqueHeader": [
+    {
+      "name": "ID_REGOUREPEMENT",
+      "rename": "ID_PLI",
+      "validators": {
+        "simple": [
+          "notNull",
+          "unique"
+        ],
+        "complex": [
+          {
+            "name": "notEgalTo",
+            "arguments": [
+              "0000000000000000"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "DT_DEBUT_TRT_FICHIER",
+      "validators": {
+        "simple": [
+          "validDate"
+        ]
+      },
+      "converter": {
+        "name": "epochTimeMillis"
+      }
+    },
+    {
+      "name": "LB_CLASSEMODELE",
+      "validators": {
+        "simple": [
+          "notNull",
+          "unique"
+        ],
+        "complex": [
+          {
+            "name": "notEgalTo",
+            "arguments": [
+              "0000000000000000",
+              "MC487R",
+              "RERZTT"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "NOM_PDF",
+      "validators": {
+        "simple": [
+          "notNull"
+        ]
+      }
+    },
+    {
+      "name": "CHEMIN_PDF",
+      "validators": {
+        "simple": [
+          "notNull",
+          "pdfExist"
+        ]
+      }
+    }
+  ]
+}

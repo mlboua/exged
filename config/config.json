@@ -1,0 +1,18 @@
+{
+  "idTreatement": "TEST_1",
+  "migration": "allur",
+  "mode": "dev",
+  "numberOfFoldPerArchive": 2500,
+  "foldSort": "ID_PLI",
+  "inputFolder": "input",
+  "tempFolder": "temp",
+  "outputFolder": "archives",
+  "pdfPath": "../../",
+  "configFolder": "config",
+  "resumeFolder": "traitement",
+  "splitterNumberOfLinePerFile": 100000,
+  "headersFile": "headers.csv",
+  "sStoRNIFile": "ALLOC_MM-V2.txt",
+  "oldToNewModelFile": "ModelConvertor.txt",
+  "configMetierFile": "configMetier.csv"
+}
