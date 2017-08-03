@@ -52,21 +52,24 @@ public class App {
             reader.readFolderParallel(new File(config.getSplittedTempFolder())) // Read lines to -> List<List<String>>
                     .flatMap(Data::foldStream) // FilesRows -> Rows -> Folds
                     .map(fold -> genericCreator.createFields(fold, fold.getHeader()))  // Création des valeurs complémentaires
-                    .map(fold -> {
+                    .forEach(fold -> {
                         Map<String, Object> params = new HashMap<>();
                         params.put("pli", fold.getData());
                         params.put("headers", fold.getHeader());
                         final Optional<String> render = templateEngineExecutor.render(params);
                         if (render.isPresent()) {
                             try {
-                                File xmlFile = new File(config.getXmlTempFolder() + File.separator + fold.getId() + ".xml");
+                                File xmlFile = new File(config.getXmlTempFolder() + File.separator
+                                        + detectDate(fold.getData().get(0).get(fold.getHeader().get("DB_DATE_NUM"))) + File.separator
+                                        + fold.getId() + ".xml");
+                                Files.createParentDirs(xmlFile);
                                 Files.write(XMLUtils.toPrettyString(render.get(), 2).getBytes(), xmlFile);
-                                return Optional.of(xmlFile);
+                                //return Optional.of(xmlFile);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        return Optional.<File>empty();
+                        //return Optional.<File>empty();
                     });
 
 
@@ -76,6 +79,10 @@ public class App {
         } catch (ExgedParserException | IOException | ExgedCoreException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String detectDate(String date) {
+        return date.substring(0, 4) + "_" + date.substring(4, 6);
     }
 
     private static void initialisation(String... args) throws IOException, ExgedCoreException {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20110728_1_MI_ARC</IdLot>
+            <IdPli>20110728_1_MI_ARC</IdPli>
+            <DateNum>20110728</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20110728_PREVOYANCE</NumeroBoite>
+            <Renum>FAUX</Renum>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>4756845</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20110728_1_MI_ARC.tif</FileName>
+            <Titre>PREVOYANCE_RECLAMATION HOPITAUX_COURRIER CLIENT</Titre>
+            <IdDocTN>11209012_PLI_0001_X0000000_PREV_PRES</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>test COURRIER CLIENT type</Type>
+            <SousType>test COURRIER CLIENT sous-type</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

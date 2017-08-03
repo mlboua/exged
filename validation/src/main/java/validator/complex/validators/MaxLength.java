@@ -12,16 +12,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ValidatorAnnotation(name = "notEgalTo", type = "complex")
-public class NotEgalTo implements ComplexValidationCondition {
+@ValidatorAnnotation(name = "maxLength", type = "complex")
+public class MaxLength implements ComplexValidationCondition {
 
     @Override
     public Optional<Reject> validate(String rejectCode, Fold fold, List<ComplexValidator> complexValidatorList, Map<String, Integer> headers) throws ExgedValidatorException {
         final List<String> collect = fold.getData().stream()
                 .map(row -> complexValidatorList.stream()
-                        .filter(complexValidator -> complexValidator.getArguments() // Optionnel vérifié au début de la fonction
-                                .stream()
-                                .noneMatch(value -> row.get(headers.get(complexValidator.getName())).equals(value)))    // Condition princpale
+                        .filter(complexValidator -> row.get(headers.get(complexValidator.getName())).length() >= Integer.parseInt(complexValidator.getArguments().get(1)))    // Condition princpale
                         .map(complexValidator -> complexValidator.getName() + " - Line " + fold.getData().indexOf(row))
                         .collect(Collectors.toList()))
                 .flatMap(List::stream)

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20111021_1_MI_ARC</IdLot>
+            <IdPli>20111021_1_MI_ARC</IdPli>
+            <DateNum>20111021</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20111021_ADHESION AFFILIATION</NumeroBoite>
+            <Renum>FAUX</Renum>
+            <NIR>ADHESION AFFILIATION_RGX GBE_MISE A JOUR EMPLOYEUR</NIR>
+            <CleNIR>ADHESION AFFILIATION_RGX GBE_MISE A JOUR EMPLOYEUR</CleNIR>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>4832576</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20111021_1_MI_ARC.tif</FileName>
+            <Titre>ADHESION AFFILIATION_RGX GBE_MISE A JOUR EMPLOYEUR</Titre>
+            <IdDocTN>11294012_PLI_0007_R0000000_ADHE_AFFI</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>test MISE A JOUR EMPLOYEUR type</Type>
+            <SousType>test MISE A JOUR EMPLOYEUR sous-type</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

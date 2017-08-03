@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20070927_1_MI_ARC</IdLot>
+            <IdPli>20070927_1_MI_ARC</IdPli>
+            <DateNum>20070927</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20070927_PREVOYANCE</NumeroBoite>
+            <Renum>FAUX</Renum>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>2765447</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20070927_1_MI_ARC.tif</FileName>
+            <Titre>PREVOYANCE_RETOUR VIAMEDIS_COURRIER CLIENT</Titre>
+            <IdDocTN>07270036_PLI_0006_R0000000_PREV_PRES</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>test COURRIER CLIENT type</Type>
+            <SousType>test COURRIER CLIENT sous-type</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

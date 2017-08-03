@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20091222_1_MI_ARC</IdLot>
+            <IdPli>20091222_1_MI_ARC</IdPli>
+            <DateNum>20091222</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20091222_ACTION SOCIALE</NumeroBoite>
+            <Renum>FAUX</Renum>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>4095847</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20091222_1_MI_ARC.tif</FileName>
+            <Titre>ACTION SOCIALE_� attribuer_AUTORISATION DE PRELEVEMENT</Titre>
+            <IdDocTN>09356009_PLI_0013_E0000000_ACTI_ATTR</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>MOYEN DE PAIEMENT</Type>
+            <SousType>AUTORISATION PAIEMENT COMPTE TIERS</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

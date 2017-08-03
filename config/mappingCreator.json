@@ -1,5 +1,13 @@
 [
   {
+    "name": "NUM_LOT",
+    "creator": "concat",
+    "headers": [],
+    "arguments": [
+      "_"
+    ]
+  },
+  {
     "name": "ID_LOT",
     "creator": "concat",
     "headers": [
@@ -26,12 +34,10 @@
     "creator": "concat",
     "headers": [
       "DB_DATE_NUM",
-      "1_MI_ARC"
+      "SERVICE"
     ],
     "arguments": [
-      "_",
-      "DB_DATE_NUM",
-      "1_MI_ARC"
+      "_"
     ]
   },
   {
@@ -73,7 +79,7 @@
     "creator": "concat",
     "headers": [
       "ID_PLI",
-      ".tiff"
+      ".tif"
     ],
     "arguments": [
       ""

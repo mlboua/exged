@@ -1,30 +1,7 @@
 [
   {
-    "name": "TEST2",
-    "rejectedValues": [""],
-    "replacedBy": "TEST"
-  },
-  {
-    "name": "TEST3",
-    "rejectedValues": [""],
-    "replacedBy": "TEST2"
-  },
-  {
-    "name": "TEST",
-    "rejectedValues": [""],
-    "replacedBy": "ID_REGROUPEMENT"
-  },
-  {
-    "name":"ID_REGROUPEMENT",
-    "rejectedValues": [
-      "00000000000",
-      ""
-    ],
-    "replacedBy": "ID_FLUX_METIER"
-  },
-  {
-    "name": "ID_FLUX_METIER",
-    "rejectedValues": [""],
+    "name": "DOCIDXGED",
+    "rejectedValues": [],
     "replacedBy": null
   }
 ]

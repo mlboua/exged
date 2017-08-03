@@ -1,6 +1,8 @@
 @args List<List<String>> pli, Map<String, Integer> headers
-@def Boolean check(String header) {
-    return headers.get(header) != null && pli.get(0).get(headers.get(header)) != null && !"".equals(pli.get(0).get(headers.get(header)));
+@def xmlElementNotNull(String elementName, String header) {
+    @if (headers.get(header) != null && pli.get(0).get(headers.get(header)) != null && !"".equals(pli.get(0).get(headers.get(header)))) {
+        @xmlElement(elementName, header)
+    }
 }
 @def xmlElement(String elementName, String header) {
     @{if(headers.get(header) == null) {System.out.println("Header Introuvable: "+ header);}}
@@ -21,15 +23,15 @@
                     <Recommande>FAUX</Recommande>
                     @xmlElement("NumeroBoite", "NUM_BOITE")
                     <Renum>FAUX</Renum>
-                    @if (check("NUMSS")) {@xmlElement("NIR", "NUMSS_VALUE")}
-                    @if (check("NUMSS")) {@xmlElement("CleNIR", "NUMSS_KEY")}
-                    @if (check("DB_NOM_BENEF")) {@xmlElement("Nom", "DB_NOM_BENEF")}
-                    @if (check("DB_PRN_BENEF")) {@xmlElement("Prenom", "DB_PRN_BENEF")}
-                    @if (check("RAISON_SOCIALE")) {@xmlElement("RaisonSociale", "RAISON_SOCIALE")}
-                    @if (check("SIRET_AFE")) {@xmlElement("SIRET", "SIRET_AFE")}
+                    @xmlElementNotNull("NIR", "NUMSS_VALUE")
+                    @xmlElementNotNull("CleNIR", "NUMSS_KEY")
+                    @xmlElementNotNull("Nom", "DB_NOM_BENEF")
+                    @xmlElementNotNull("Prenom", "DB_PRN_BENEF")
+                    @xmlElementNotNull("RaisonSociale", "RAISON_SOCIALE")
+                    @xmlElementNotNull("SIRET", "SIRET_AFE")
                 </InheritedMetaData>
                 <DirectMetaData>
-                    @if (check("DOCIDX")) {@xmlElement("RefOrigine", "DOCIDX")}
+                    @xmlElementNotNull("RefOrigine", "DOCIDX")
                     <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
                     @xmlElement("FileName", "FILE_NAME")
                     @xmlElement("Titre", "TITRE")

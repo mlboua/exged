@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20110524_1_MI_ARC</IdLot>
+            <IdPli>20110524_1_MI_ARC</IdPli>
+            <DateNum>20110524</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20110524_ADHESION AFFILIATION</NumeroBoite>
+            <Renum>FAUX</Renum>
+            <NIR>ADHESION AFFILIATION_AFFILIATION_CONTRAT APPRENTISSAGE</NIR>
+            <CleNIR>ADHESION AFFILIATION_AFFILIATION_CONTRAT APPRENTISSAGE</CleNIR>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>4701061</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20110524_1_MI_ARC.tif</FileName>
+            <Titre>ADHESION AFFILIATION_AFFILIATION_CONTRAT APPRENTISSAGE</Titre>
+            <IdDocTN>11144017_PLI_0003_R0000000_ADHE_SUIV</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>SITUATION FAMILLIALE</Type>
+            <SousType>CONTRAT APPRENTISSAGE</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

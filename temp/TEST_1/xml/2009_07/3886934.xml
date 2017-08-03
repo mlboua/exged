@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20090721_1_MI_ARC</IdLot>
+            <IdPli>20090721_1_MI_ARC</IdPli>
+            <DateNum>20090721</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20090721_ADHESION AFFILIATION</NumeroBoite>
+            <Renum>FAUX</Renum>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>3886934</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20090721_1_MI_ARC.tif</FileName>
+            <Titre>ADHESION AFFILIATION_COUPON MANIF EXT_BULLETIN DE PARTICIPATION</Titre>
+            <IdDocTN>09202052_PLI_0021_X0000000_ADHE_MANI</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>test BULLETIN DE PARTICIPATION type</Type>
+            <SousType>test BULLETIN DE PARTICIPATION sous-type</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

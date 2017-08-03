@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20060124_1_MI_ARC</IdLot>
+            <IdPli>20060124_1_MI_ARC</IdPli>
+            <DateNum>20060124</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20060124_</NumeroBoite>
+            <Renum>FAUX</Renum>
+            <RaisonSociale>SASU ALPIFEN</RaisonSociale>
+            <SIRET>45227277600017</SIRET>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>778576</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20060124_1_MI_ARC.tif</FileName>
+            <Titre>_DECLARATION EMPLOYEUR_PIECE 19</Titre>
+            <IdDocTN>06024077_PLI_0017</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>test PIECE 19 type</Type>
+            <SousType>test PIECE 19 sous-type</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>
