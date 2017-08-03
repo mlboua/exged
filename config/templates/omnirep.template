@@ -1,54 +1,48 @@
 @args List<List<String>> pli, Map<String, Integer> headers
-<?xml version="1.0" encoding="UTF-8"?>
-<PLI>
-	<nbDocs>1</nbDocs>
-	<DocumentICC>
-		<InheritedMetaData>
-			<IdLot>@pli.get(0).get(headers.get("ID_LOT"))</IdLot>
-			<IdPli>@pli.get(0).get(headers.get("ID_PLI"))</IdPli>
-			<DateNum>@pli.get(0).get(headers.get("DB_DATE_NUM"))</DateNum>
-			<NbDocs>1<NbDocs>
-			<Source>OMNIREP</Source>
-			<Canal>@pli.get(0).get(headers.get("CANAL"))</Canal>
-			<Filieres>ARC</Filieres>
-			<Recommande>FAUX</Recommande>
-			<NumeroBoite>@pli.get(0).get(headers.get("NUM_BOITE"))</NumeroBoite>
-			<Renum>FAUX</Renum>
-			@if(@pli.get(0).get(headers.get("NUMSS") != null) {
-			    <NIR>@pli.get(0).get(headers.get("NUMSS_VALUE"))</NIR>
-			}
-			@if(@pli.get(0).get(headers.get("NUMSS") != null) {
-                <CleNIR>@pli.get(0).get(headers.get("NUMSS_KEY"))</CleNIR>
-            }
-            @if(@pli.get(0).get(headers.get("DB_NOM_BENEF") != null) {
-                <Nom>@pli.get(0).get(headers.get("DB_NOM_BENEF"))</Nom>
-            }
-            @if(@pli.get(0).get(headers.get("DB_PRN_BENEF") != null) {
-                <Prenom>@pli.get(0).get(headers.get("DB_PRN_BENEF"))</Prenom>
-            }
-            @if(@pli.get(0).get(headers.get("RAISON_SOCIALE") != null) {
-                <RaisonSociale>@pli.get(0).get(headers.get("RAISON_SOCIALE"))</RaisonSociale>
-            }
-            @if(@pli.get(0).get(headers.get("SIRET_AFE") != null) {
-                <SIRET>@pli.get(0).get(headers.get("SIRET_AFE"))</SIRET>
-            }
-		</InheritedMetaData>
-		<DirectMetaData>
-		    @if(@pli.get(0).get(headers.get("DOCIDX") != null) {
-                 <RefOrigine>@pli.get(0).get(headers.get("DOCIDX"))</RefOrigine>
-            }
-            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
-			<FileName>@pli.get(0).get(headers.get("FILE_NAME"))</FileName>
-			<Titre>@pli.get(0).get(headers.get("TITRE"))</Titre>
-			<IdDocTN>@pli.get(0).get(headers.get("DB_NUMPLI"))</IdDocTN>
-			<ModeVideocodage>FAUX</ModeVideocodage>
-			<Type>@pli.get(0).get(headers.get("TYPE_PIECE"))</Type>
-			<SousType>@pli.get(0).get(headers.get("SOUS_TYPE"))</SousType>
-			<DocumentMaitre>FAUX</DocumentMaitre>
-			<Confidentiel>FAUX</Confidentiel>
-			<Medical>FAUX</Medical>
-			<Interne>FAUX</Interne>
-			<NbPages>1</NbPages>
-		</DirectMetaData>
-	</DocumentICC>
-</PLI>
+@def Boolean check(String header) {
+    return headers.get(header) != null && pli.get(0).get(headers.get(header)) != null && !"".equals(pli.get(0).get(headers.get(header)));
+}
+@def xmlElement(String elementName, String header) {
+    @{if(headers.get(header) == null) {System.out.println("Header Introuvable: "+ header);}}
+    <@elementName>@pli.get(0).get(headers.get(header))</@elementName>
+}
+@compact(){
+        <PLI>
+            <nbDocs>1</nbDocs>
+            <DocumentICC>
+                <InheritedMetaData>
+                    @xmlElement("IdLot", "ID_LOT")
+                    @xmlElement("IdPli", "ID_PLI")
+                    @xmlElement("DateNum", "DB_DATE_NUM")
+                    <NbDocs>1</NbDocs>
+                    <Source>OMNIREP</Source>
+                    <Canal>MI</Canal>
+                    <Filieres>ARC</Filieres>
+                    <Recommande>FAUX</Recommande>
+                    @xmlElement("NumeroBoite", "NUM_BOITE")
+                    <Renum>FAUX</Renum>
+                    @if (check("NUMSS")) {@xmlElement("NIR", "NUMSS_VALUE")}
+                    @if (check("NUMSS")) {@xmlElement("CleNIR", "NUMSS_KEY")}
+                    @if (check("DB_NOM_BENEF")) {@xmlElement("Nom", "DB_NOM_BENEF")}
+                    @if (check("DB_PRN_BENEF")) {@xmlElement("Prenom", "DB_PRN_BENEF")}
+                    @if (check("RAISON_SOCIALE")) {@xmlElement("RaisonSociale", "RAISON_SOCIALE")}
+                    @if (check("SIRET_AFE")) {@xmlElement("SIRET", "SIRET_AFE")}
+                </InheritedMetaData>
+                <DirectMetaData>
+                    @if (check("DOCIDX")) {@xmlElement("RefOrigine", "DOCIDX")}
+                    <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+                    @xmlElement("FileName", "FILE_NAME")
+                    @xmlElement("Titre", "TITRE")
+                    @xmlElement("IdDocTN", "DB_NUMPLI")
+                    <ModeVideocodage>FAUX</ModeVideocodage>
+                    @xmlElement("Type", "TYPE_PIECE")
+                    @xmlElement("SousType", "SOUS_TYPE_PIECE")
+                    <DocumentMaitre>FAUX</DocumentMaitre>
+                    <Confidentiel>FAUX</Confidentiel>
+                    <Medical>FAUX</Medical>
+                    <Interne>FAUX</Interne>
+                    <NbPages>1</NbPages>
+                </DirectMetaData>
+            </DocumentICC>
+        </PLI>
+}

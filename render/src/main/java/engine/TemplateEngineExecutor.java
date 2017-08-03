@@ -55,6 +55,5 @@ public class TemplateEngineExecutor {
             engine = rythmEngineList.stream().filter(RythmEngineStatus::isAvailable).findFirst();
         }
         return Optional.of(engine.get().render(params, templateClass));
-
     }
 }

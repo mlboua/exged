@@ -1,11 +1,13 @@
 package data;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Fold {
 
-    public String getId();
+    String getId();
 
-    public List<List<String>> getData();
+    List<List<String>> getData();
 
+    Map<String, Integer> getHeader();
 }

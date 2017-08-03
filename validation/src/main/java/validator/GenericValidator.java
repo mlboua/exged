@@ -54,9 +54,6 @@ public class GenericValidator implements Validator {
                 });
             }
         });
-
-        System.out.println(mappingReject);
-
     }
 
     private static String getValidatorName(Class<?> simpleValidator) {

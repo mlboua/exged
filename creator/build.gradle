@@ -10,8 +10,7 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.beust/jcommander
-    compile group: 'com.beust', name: 'jcommander', version: '1.72'
-
+    compile "org.reflections:reflections:0.9.11"
+    compile project(":core")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

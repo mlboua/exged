@@ -12,5 +12,7 @@ repositories {
 dependencies {
     // https://mvnrepository.com/artifact/org.rythmengine/rythm-engine
     compile group: 'org.rythmengine', name: 'rythm-engine', version: '1.2.0'
+    compile "joda-time:joda-time:2.9.9"
+    compile project(':core')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

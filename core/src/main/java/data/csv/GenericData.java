@@ -2,7 +2,6 @@ package data.csv;
 
 import data.Data;
 import data.Fold;
-import exception.ExgedCoreException;
 import identifier.csv.CsvIdentifier;
 import identifier.csv.CsvIdentifierValidation;
 
@@ -31,6 +30,10 @@ public class GenericData implements Data {
         return headers != null ? headers.get(header) : -1;
     }
 
+    public Map<String, Integer> getHeaders() {
+        return headers;
+    }
+
     @Override
     public Stream<List<String>> stream() {
         return rows.stream();
@@ -54,14 +57,14 @@ public class GenericData implements Data {
                 }
             }
         });
-        foldTemp.forEach((id, rows) -> streamFold.add(new CsvFold(id, rows)));
+        foldTemp.forEach((id, rows) -> streamFold.add(new CsvFold(id, rows, headers)));
         return streamFold.build();
     }
 
     @Override
     public String toString() {
         return "GenericData{" +
-                "headers.size()=" + headers.size() +
+                "headers.size()=" + headers.keySet().size() +
                 ", rows.size()=" + rows.size() +
                 '}';
     }

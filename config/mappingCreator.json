@@ -1,0 +1,106 @@
+[
+  {
+    "name": "ID_LOT",
+    "creator": "concat",
+    "headers": [
+      "DB_DATE_NUM",
+      "1_MI_ARC"
+    ],
+    "arguments": [
+      "_"
+    ]
+  },
+  {
+    "name": "ID_PLI",
+    "creator": "concat",
+    "headers": [
+      "DB_DATE_NUM",
+      "1_MI_ARC"
+    ],
+    "arguments": [
+      "_"
+    ]
+  },
+  {
+    "name": "NUM_BOITE",
+    "creator": "concat",
+    "headers": [
+      "DB_DATE_NUM",
+      "1_MI_ARC"
+    ],
+    "arguments": [
+      "_",
+      "DB_DATE_NUM",
+      "1_MI_ARC"
+    ]
+  },
+  {
+    "name": "TITRE",
+    "creator": "concat",
+    "headers": [
+      "SERVICE",
+      "TYPE_PLI_COL",
+      "TYPE_PIECE_COL"
+    ],
+    "arguments": [
+      "_"
+    ]
+  },
+  {
+    "name": "NUMSS_VALUE",
+    "creator": "subString",
+    "headers": [
+      "NUMSS"
+    ],
+    "arguments": [
+      "0",
+      "12"
+    ]
+  },
+  {
+    "name": "NUMSS_KEY",
+    "creator": "subString",
+    "headers": [
+      "NUMSS"
+    ],
+    "arguments": [
+      "13",
+      "15"
+    ]
+  },
+  {
+    "name": "FILE_NAME",
+    "creator": "concat",
+    "headers": [
+      "ID_PLI",
+      ".tiff"
+    ],
+    "arguments": [
+      ""
+    ]
+  },
+  {
+    "name": "TYPE_PIECE",
+    "creator": "fileMapperList",
+    "headers": [
+      "TYPE_PIECE_COL"
+    ],
+    "arguments": [
+      "config/configMetier.csv",
+      ",",
+      "0"
+    ]
+  },
+  {
+    "name": "SOUS_TYPE_PIECE",
+    "creator": "fileMapperList",
+    "headers": [
+      "TYPE_PIECE_COL"
+    ],
+    "arguments": [
+      "config/configMetier.csv",
+      ",",
+      "1"
+    ]
+  }
+]

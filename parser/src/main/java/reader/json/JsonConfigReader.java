@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import config.json.mapping.creator.MappingCreator;
 import config.json.mapping.headers.MappingHeaders;
 import config.json.mapping.reject.MappingReject;
 import exception.ExgedParserException;
@@ -57,5 +58,9 @@ public class JsonConfigReader {
 
     public static List<MappingReject> readJsonMappingReject(File file) throws IOException {
         return Arrays.asList(mapper.readValue(file, MappingReject[].class));
+    }
+
+    public static List<MappingCreator> readJsonMappingCreator(File file) throws IOException {
+        return Arrays.asList(mapper.readValue(file, MappingCreator[].class));
     }
 }

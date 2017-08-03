@@ -1,0 +1,34 @@
+# Configuration of the migration
+# Relative or absolute path
+---
+# Global
+idTreatement: TEST_1
+migration: omnirep # allur | adhpr | exged
+mode: dev # dev | prod
+numberOfFoldPerArchive: 2500 # 5000 ~= 1GB
+
+# Sort
+foldSort: ID_PLI
+
+# Folders config
+inputFolder: input
+tempFolder: temp
+outputFolder: archives
+
+pdfPath: ../../
+
+configFolder: config
+resumeFolder: traitement
+
+# Step 1 - Splitter
+splitterNumberOfLinePerFile: 100000 # 100 000 Offer the best performance, More than 200 000 use too much ram and the processing will be much longer
+
+# Step 2 - Extraction
+# Files in "configFolder"
+headersFile: headers.csv
+sStoRNIFile: ALLOC_MM-V2.txt
+oldToNewModelFile: ModelConvertor.txt
+
+# Step 3 - Translate
+# Files in "configFolder"
+configMetierFile: configMetier.csv  # ExGED Only

@@ -8,7 +8,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import data.Data;
 import data.csv.GenericData;
 import exception.ExgedParserException;
-import identifier.Identifier;
 import identifier.csv.CsvIdentifier;
 import identifier.csv.CsvIdentifierValidation;
 import reader.Reader;
@@ -116,7 +115,7 @@ public class CsvReader implements Reader {
 
         if (headersExtraction) {
             final Map<String, Integer> headers = getHeaders(parser.getContext().selectedHeaders());
-            return new GenericData(this.csvIdentifiers, Collections.unmodifiableMap(headers), Collections.unmodifiableList(rows));
+            return new GenericData(this.csvIdentifiers, headers, Collections.unmodifiableList(rows));
         }
         return new GenericData(this.csvIdentifiers, Collections.unmodifiableList(rows));
 
@@ -134,10 +133,8 @@ public class CsvReader implements Reader {
 
     @Override
     public Stream<Data> readFolder(File directory) throws ExgedParserException {
-        if (!directory.isDirectory()) {
-            throw new ExgedParserException("Le fichier donné en paramètre n'est pas un dossier");
-        }
         try {
+            verifyFolder(directory);
             return Files
                     .list(directory.toPath())
                     .filter(path -> path.toString().endsWith(".csv"))
@@ -149,10 +146,8 @@ public class CsvReader implements Reader {
 
     @Override
     public Stream<Data> readFolderParallel(File directory) throws ExgedParserException {
-        if (!directory.isDirectory()) {
-            throw new ExgedParserException("Le fichier donné en paramètre n'est pas un dossier");
-        }
         try {
+            verifyFolder(directory);
             return Files
                     .list(directory.toPath())
                     .filter(path -> path.toString().endsWith(".csv"))
@@ -160,6 +155,15 @@ public class CsvReader implements Reader {
                     .map(file -> readFile(file.toFile()));
         } catch (IOException e) {
             throw new ExgedParserException("Impossible de trouver le fichier ou les droits d'écriture ne sont pas attribué");
+        }
+    }
+
+    private void verifyFolder(File directory) throws ExgedParserException, IOException {
+        if (!directory.isDirectory()) {
+            throw new ExgedParserException("Le fichier donné en paramètre n'est pas un dossier");
+        }
+        if (Files.list(directory.toPath()).count() == 0) {
+            throw new ExgedParserException("Dossier d'entrée vide.");
         }
     }
 }
