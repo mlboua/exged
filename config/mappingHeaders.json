@@ -15,55 +15,7 @@
   ],
   "uniqueHeader": [
     {
-      "name": "ID_REGOUREPEMENT",
-      "rename": "ID_PLI",
-      "validators": {
-        "simple": [
-          "notNull",
-          "unique"
-        ],
-        "complex": [
-          {
-            "name": "notEgalTo",
-            "arguments": [
-              "0000000000000000"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "DT_DEBUT_TRT_FICHIER",
-      "validators": {
-        "simple": [
-          "validDate"
-        ]
-      },
-      "converter": {
-        "name": "epochTimeMillis"
-      }
-    },
-    {
-      "name": "LB_CLASSEMODELE",
-      "validators": {
-        "simple": [
-          "notNull",
-          "unique"
-        ],
-        "complex": [
-          {
-            "name": "notEgalTo",
-            "arguments": [
-              "0000000000000000",
-              "MC487R",
-              "RERZTT"
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "NOM_PDF",
+      "name": "DB_DATE_NUM",
       "validators": {
         "simple": [
           "notNull"
@@ -71,11 +23,28 @@
       }
     },
     {
-      "name": "CHEMIN_PDF",
+      "name": "NUMSS",
       "validators": {
-        "simple": [
-          "notNull",
-          "pdfExist"
+        "complex": [
+          {
+            "name": "matchLenght",
+            "arguments": [
+              "15"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "SIRET_AFE",
+      "validators": {
+        "complex": [
+          {
+            "name": "matchLenght",
+            "arguments": [
+              "14"
+            ]
+          }
         ]
       }
     }
