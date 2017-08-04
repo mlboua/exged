@@ -3,16 +3,14 @@ package validator;
 import config.json.mapping.headers.MappingHeaders;
 import config.json.mapping.reject.MappingReject;
 import data.Fold;
+import exception.ExgedValidatorException;
 import org.reflections.Reflections;
 import validator.complex.ComplexValidationCondition;
 import validator.complex.ComplexValidator;
 import validator.simple.SimpleValidationCondition;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GenericValidator implements Validator {
@@ -34,6 +32,8 @@ public class GenericValidator implements Validator {
 
     private final Map<String, List<String>> simpleValidatorsToHeadersMap;
     private final Map<String, List<ComplexValidator>> complexValidatorsToHeadersMap;
+    Map<String, MappingReject> validatorToReject;
+    Map<String, String> detailRejectMap;
 
     public GenericValidator(MappingHeaders mappingHeaders, List<MappingReject> mappingReject) {
         simpleValidatorsToHeadersMap = simpleConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
@@ -54,6 +54,28 @@ public class GenericValidator implements Validator {
                 });
             }
         });
+        simpleValidatorsToHeadersMap.values().removeIf(List::isEmpty);
+        complexValidatorsToHeadersMap.values().removeIf(List::isEmpty);
+        validatorToReject = new HashMap<>();
+        simpleValidatorsToHeadersMap.forEach((name, validator) -> mappingReject.forEach(mapReject -> {
+            if (mapReject.getValidators().getSimple().isPresent()) {
+                mapReject.getValidators().getSimple().get().stream()
+                        .filter(validatorName -> validatorName.equals(name))
+                        .findFirst()
+                        .ifPresent(validatorFind -> validatorToReject.put(validatorFind, mapReject));
+            }
+        }));
+        complexValidatorsToHeadersMap.forEach((name, validator) -> mappingReject.forEach(mapReject -> {
+            if (mapReject.getValidators().getComplex().isPresent()) {
+                mapReject.getValidators().getComplex().get().stream()
+                        .filter(validatorName -> validatorName.getName().equals(name))
+                        .findFirst()
+                        .ifPresent(validatorFind -> {
+                            validatorToReject.put(validatorFind.getName(), mapReject);
+                        });
+            }
+        }));
+        mappingReject.forEach(mappingReject1 -> mappingReject1.setValidators(null));
     }
 
     private static String getValidatorName(Class<?> simpleValidator) {
@@ -79,7 +101,45 @@ public class GenericValidator implements Validator {
     }
 
     @Override
-    public Optional<Reject> validateFold(Fold fold) {
-        return null;
+    public Optional<List<DetailReject>> validateFold(Fold fold) {
+        final List<DetailReject> simpleReject = simpleValidatorsToHeadersMap.keySet().stream().map(key -> {
+            try {
+                final Optional<Reject> reject = simpleConditions.get(key).validate(validatorToReject.get(key).getCode(), fold, simpleValidatorsToHeadersMap.get(key), fold.getHeader());
+                if (reject.isPresent()) {
+                    return Optional.of(new DetailReject(reject.get().getCode(), reject.get().getValues(), validatorToReject.get(key).getDetail(), fold));
+                }
+            } catch (ExgedValidatorException e) {
+                e.printStackTrace();
+            }
+            return Optional.<Reject>empty();
+        })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(reject -> new DetailReject(reject.getCode(), reject.getValues(), validatorToReject.get(reject.getCode()).getDetail(), fold))
+                .collect(Collectors.toList());
+
+        if (simpleReject.isEmpty()) {
+            final List<DetailReject> complexReject = complexValidatorsToHeadersMap.keySet().stream().map(key -> {
+                try {
+                    final Optional<Reject> reject = complexConditions.get(key).validate(validatorToReject.get(key).getCode(), fold, complexValidatorsToHeadersMap.get(key), fold.getHeader());
+                    if (reject.isPresent()) {
+                        return Optional.of(new DetailReject(reject.get().getCode(), reject.get().getValues(), validatorToReject.get(key).getDetail(), fold));
+                    }
+                } catch (ExgedValidatorException e) {
+                    e.printStackTrace();
+                }
+                return Optional.<DetailReject>empty();
+            })
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            if (complexReject.isEmpty()) {
+                return Optional.empty();
+            } else {
+                return Optional.of(complexReject);
+            }
+        } else {
+            return Optional.of(simpleReject);
+        }
     }
 }

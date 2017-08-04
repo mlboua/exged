@@ -10,11 +10,11 @@ public class Stats {
     private int numberFilesEntry = 0;
 
     private int numberPliEntry = 0;
-    private int numberDocumentEntry = 0;
+    private Long numberDocumentEntry = 0L;
 
     private int numberFileExit = 0;
     private int numberPliExit = 0;
-    private int numberDocumentExit = 0;
+    private Long numberDocumentExit = 0L;
 
     private int numberPliNotValid = 0;
     private int numberDocumentNotValid = 0;
@@ -62,64 +62,64 @@ public class Stats {
     /**
      * @return the numberFilesEntry
      */
-    public final synchronized int getNumberFilesEntry() {
+    public final int getNumberFilesEntry() {
         return numberFilesEntry;
     }
 
     /**
      * @return the numberPliEntry
      */
-    public final synchronized int getNumberPliEntry() {
+    public final int getNumberPliEntry() {
         return numberPliEntry;
     }
 
     /**
      * @return the numberDocumentEntry
      */
-    public final synchronized int getNumberDocumentEntry() {
+    public final Long getNumberDocumentEntry() {
         return numberDocumentEntry;
     }
 
     /**
      * @return the numberFileExit
      */
-    public final synchronized int getNumberFileExit() {
+    public final int getNumberFileExit() {
         return numberFileExit;
     }
 
     /**
      * @return the numberPliExit
      */
-    public final synchronized int getNumberPliExit() {
+    public final int getNumberPliExit() {
         return numberPliExit;
     }
 
     /**
      * @return the numberDocumentExit
      */
-    public final synchronized int getNumberDocumentExit() {
+    public final Long getNumberDocumentExit() {
         return numberDocumentExit;
     }
 
     /**
      * @return the numberPliNotInExit
      */
-    public final synchronized int getNumberPliNotValid() {
+    public final int getNumberPliNotValid() {
         return numberPliNotValid;
     }
 
     /**
      * @return the numberDocumentIgnored
      */
-    public final synchronized int getNumberDocumentNotValid() {
+    public final int getNumberDocumentNotValid() {
         return numberDocumentNotValid;
     }
 
     /**
      * @return the numberFileTreatedPerSeconds
      */
-    public final synchronized float getNumberFileTreatedPerSeconds() {
-        return getNumberDocumentEntry() / (Duration.between(this.instantStart, Instant.now()).getNano() / 1000000000f);
+    public final float getNumberFileTreatedPerSeconds() {
+        return getNumberDocumentEntry() / (Duration.between(this.instantStart, Instant.now()).getSeconds());
     }
 
     /*
@@ -130,7 +130,7 @@ public class Stats {
     public String toString() {
         return "SORTIE: "
                 + "\n\tTemps d'execution: "
-                + (Duration.between(this.instantStart, Instant.now()).getNano() / 1000000000f)
+                + (Duration.between(this.instantStart, Instant.now()).getSeconds())
                 + "\n\tNombre de documents traités par secondes: "
                 + getNumberFileTreatedPerSeconds()
                 + "\n======================== ENTREE ========================"

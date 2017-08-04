@@ -17,7 +17,7 @@ public class notNull implements SimpleValidationCondition {
     public Optional<Reject> validate(final String rejectCode, final Fold fold, final List<String> headerValidation, final Map<String, Integer> headers) {
         final List<String> collect = fold.getData().stream()
                 .map(row -> headerValidation.stream()
-                        .filter(header -> row.get(headers.get(header)) == null)     // Condition princpale
+                        .filter(header -> headers.get(header) == null || row.get(headers.get(header)) == null)     // Condition princpale
                         .map(header -> header + " - Line " + fold.getData().indexOf(row))
                         .collect(Collectors.toList()))
                 .flatMap(List::stream)

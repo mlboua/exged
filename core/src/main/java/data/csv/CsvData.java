@@ -8,22 +8,23 @@ import identifier.csv.CsvIdentifierValidation;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class GenericData implements Data {
+public class CsvData implements Data {
 
     private final Map<String, Integer> headers;
     private final List<CsvIdentifier> identifiers;
     private final List<List<String>> rows;
 
-    public GenericData(List<CsvIdentifier> identifiers, List<List<String>> rows) {
+    public CsvData(List<CsvIdentifier> identifiers, List<List<String>> rows) {
         this.identifiers = identifiers;
         this.rows = rows;
         this.headers = null;
     }
 
-    public GenericData(List<CsvIdentifier> identifiers, Map<String, Integer> headers, List<List<String>> rows) {
+    public CsvData(List<CsvIdentifier> identifiers, Map<String, Integer> headers, List<List<String>> rows) {
         this.headers = headers;
         this.identifiers = identifiers;
         this.rows = rows;
+        identifiers.forEach(csvIdentifier -> csvIdentifier.detectIdentifierIndex(headers));
     }
 
     public int getIndexByHeader(String header) {
@@ -63,7 +64,7 @@ public class GenericData implements Data {
 
     @Override
     public String toString() {
-        return "GenericData{" +
+        return "CsvData{" +
                 "headers.size()=" + headers.keySet().size() +
                 ", rows.size()=" + rows.size() +
                 '}';

@@ -18,11 +18,25 @@ public class Reject {
         this.values = values;
     }
 
+    public Reject(String codeRejet, Optional<List<String>> values) {
+        this.code = codeRejet;
+        values.ifPresent(detailValues -> this.values = detailValues);
+        this.values = null;
+    }
+
     public String getCode() {
         return code;
     }
 
     public Optional<List<String>> getValues() {
         return values != null ? Optional.of(values) : Optional.empty();
+    }
+
+    @Override
+    public String toString() {
+        return "Reject{" +
+                "code='" + code + '\'' +
+                ", values=" + values +
+                '}';
     }
 }

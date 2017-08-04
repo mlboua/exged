@@ -38,10 +38,23 @@
   },
   {
     "code": "Generic-5",
-    "detail": "",
+    "detail": "Des valeurs ne correspondent pas à la taille indiquée",
     "validators": {
-      "simple": [
-        "fileExist"
+      "complex": [
+        {
+          "name": "matchLength"
+        }
+      ]
+    }
+  },
+  {
+    "code": "Generic-6",
+    "detail": "Des valeurs sont trop longues",
+    "validators": {
+      "complex": [
+        {
+          "name": "maxLength"
+        }
       ]
     }
   },

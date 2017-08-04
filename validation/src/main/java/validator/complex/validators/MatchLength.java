@@ -18,7 +18,15 @@ public class MatchLength implements ComplexValidationCondition {
     public Optional<Reject> validate(String rejectCode, Fold fold, List<ComplexValidator> complexValidatorList, Map<String, Integer> headers) throws ExgedValidatorException {
         final List<String> collect = fold.getData().stream()
                 .map(row -> complexValidatorList.stream()
-                        .filter(complexValidator -> row.get(headers.get(complexValidator.getName())).length() != Integer.parseInt(complexValidator.getArguments().get(1)))    // Condition princpale
+                        .filter(complexValidator -> {
+                            if (fold.getHeader().get(complexValidator.getName()) == null ||
+                                    row.get(fold.getHeader().get(complexValidator.getName())) == null || "".equals(row.get(fold.getHeader().get(complexValidator.getName())))) {
+                                return false;
+                            } else {
+                                return row.get(fold.getHeader().get(complexValidator.getName())).length() !=               // Condition princpale
+                                        Integer.parseInt(complexValidator.getArguments().get(0));
+                            }
+                        })
                         .map(complexValidator -> complexValidator.getName() + " - Line " + fold.getData().indexOf(row))
                         .collect(Collectors.toList()))
                 .flatMap(List::stream)

@@ -27,7 +27,7 @@
       "validators": {
         "complex": [
           {
-            "name": "matchLenght",
+            "name": "matchLength",
             "arguments": [
               "15"
             ]
@@ -40,7 +40,7 @@
       "validators": {
         "complex": [
           {
-            "name": "matchLenght",
+            "name": "matchLength",
             "arguments": [
               "14"
             ]

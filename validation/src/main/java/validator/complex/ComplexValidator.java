@@ -8,11 +8,6 @@ public class ComplexValidator {
     private String name;
     private List<String> arguments;
 
-    public ComplexValidator() {
-        name = null;
-        arguments = null;
-    }
-
     public ComplexValidator(String name, List<String> arguments) {
         this.name = name;
         this.arguments = arguments;
@@ -24,14 +19,6 @@ public class ComplexValidator {
 
     public List<String> getArguments() {
         return arguments;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setArguments(List<String> arguments) {
-        this.arguments = arguments;
     }
 
     @Override

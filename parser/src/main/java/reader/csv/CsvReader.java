@@ -6,7 +6,7 @@ import com.univocity.parsers.common.processor.RowListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import data.Data;
-import data.csv.GenericData;
+import data.csv.CsvData;
 import exception.ExgedParserException;
 import identifier.csv.CsvIdentifier;
 import identifier.csv.CsvIdentifierValidation;
@@ -53,6 +53,24 @@ public class CsvReader implements Reader {
         IntStream.range(0, headers.length).forEach(
                 key -> headersMap.put(headers[key], key));
         return headersMap;
+    }
+
+    public Long countRows(File file) throws IOException {
+        return Files.lines(file.toPath()).count();
+    }
+
+    public Long countRowsFolder(File directory) throws IOException {
+        return Files.list(directory.toPath())
+                .filter(path -> path.toString().endsWith(".csv"))
+                .parallel()
+                .mapToLong(path -> {
+                    try {
+                        return countRows(path.toFile());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return 0;
+                }).sum();
     }
 
     public List<File> splitFile(File file, File outputFolder, int numberForEachFile, List<CsvIdentifier> identifiers) throws ExgedParserException {
@@ -115,9 +133,9 @@ public class CsvReader implements Reader {
 
         if (headersExtraction) {
             final Map<String, Integer> headers = getHeaders(parser.getContext().selectedHeaders());
-            return new GenericData(this.csvIdentifiers, headers, Collections.unmodifiableList(rows));
+            return new CsvData(this.csvIdentifiers, headers, Collections.unmodifiableList(rows));
         }
-        return new GenericData(this.csvIdentifiers, Collections.unmodifiableList(rows));
+        return new CsvData(this.csvIdentifiers, Collections.unmodifiableList(rows));
 
     }
 

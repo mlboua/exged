@@ -25,7 +25,7 @@ public class CsvIdentifier extends Identifier {
     }
 
     public boolean detectIdentifierIndex(Map<String, Integer> headers) {
-        if(headers.containsKey(this.getName())) {
+        if (!headers.containsKey(this.getName())) {
             return false;
         }
         this.index = headers.get(this.getName());
