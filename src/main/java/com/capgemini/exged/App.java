@@ -5,25 +5,27 @@ import com.google.common.io.Files;
 import config.json.mapping.mainConfig.Config;
 import creator.GenericCreator;
 import data.Data;
-import data.Fold;
 import engine.TemplateEngineExecutor;
 import exception.ExgedCoreException;
 import exception.ExgedParserException;
 import identifier.csv.CsvIdentifier;
-import identifier.csv.CsvIdentifierValidation;
 import initialisation.Args;
 import initialisation.InitFolders;
 import reader.csv.CsvReader;
 import reader.json.JsonConfigReader;
 import reader.yaml.YamlConfigReader;
+import reports.GenericReportRow;
 import stats.Stats;
 import validator.DetailReject;
 import validator.GenericValidator;
-import validator.Reject;
+import writer.reports.ReportWriter;
 import writer.xml.XMLUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -37,39 +39,50 @@ public class App {
 
     public static void main(String... args) {
         try {
+            // Initialisation du programme
             initialisation(args);
 
-            List<CsvIdentifier> identifierList = JsonConfigReader.readJsonIdentifier(new File("config/foldDetection.json")).stream().map(CsvIdentifier::new).collect(Collectors.toList());
-
+            // Lecture des fichiers de configuration
+            final List<CsvIdentifier> identifierList = JsonConfigReader.readJsonIdentifier(new File("config/foldDetection.json")).stream().map(CsvIdentifier::new).collect(Collectors.toList());
             final GenericValidator genericValidator = new GenericValidator(JsonConfigReader.readJsonMappingHeaders(new File("config/mappingHeaders.json")),
                     JsonConfigReader.readJsonMappingReject(new File("config/mappingReject.json")));
-
             final GenericCreator genericCreator = new GenericCreator(JsonConfigReader.readJsonMappingCreator(new File("config/mappingCreator.json")));
 
+            // Préparation lecteur de fichier CSV
             CsvReader reader = new CsvReader(true, identifierList);
 
-            Map<Optional<Reject>, List<Fold>> data;
-            final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(config);
-            final CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
-            Stream.Builder<List<DetailReject>> detailRejectStream = Stream.builder();
-
+            // Ajout des stats d'entrée
             stats.addNumberDocumentEntry(reader.countRowsFolder(new File(config.getSplittedTempFolder())).intValue());
-            stats.addNumberDocumentExit(1);
-            startTime = System.currentTimeMillis();
-            Timer timer = new Timer(true);
-            timer.scheduleAtFixedRate(new MyTimerTask(), 1000, 2000);
+            stats.addNumberFilesEntry((int) java.nio.file.Files.list(Paths.get(config.getSplittedTempFolder())).count() - 1);
 
-            reader.readFolderParallel(new File(config.getSplittedTempFolder())) // Read lines to -> List<List<String>>
-                    .flatMap(Data::foldStream) // FilesRows -> Rows -> Folds
-                    .filter(fold -> {
+            // Préparation du traitement
+            // Moteur de template
+            final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(config);
+            // Stream de Rejects
+            Stream.Builder<GenericReportRow> detailRejectStream = Stream.builder();
+
+            // Lancement du stats dans la console
+            Timer timer = new Timer(true);
+            timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 5000);
+
+            //Traitement
+            reader.readFolderParallel(new File(config.getSplittedTempFolder()))         // Read lines to -> List<List<String>>
+                    .flatMap(Data::foldStream)                                          // FilesRows -> Rows -> Folds
+                    .filter(fold -> {                                                   // Validation
+                        stats.addNumberPliEntry(1);
                         final Optional<List<DetailReject>> rejects = genericValidator.validateFold(fold);
                         if (rejects.isPresent()) {
-                            detailRejectStream.add(rejects.get());
+                            stats.addNumberPliNotValid(1);
+                            stats.addNumberDocumentNotValid(fold.getData().size());
+                            rejects.get().forEach(reject -> {
+                                detailRejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail(), fold));
+                            });
                             return false;
                         }
                         return true;
                     })
                     .map(fold -> genericCreator.createFields(fold, fold.getHeader()))  // Création des valeurs complémentaires
+                    .peek(fold -> fold.setId(fold.getData().get(0).get(fold.getHeader().get("ID_PLI")))) // Changement de l'ID  du pli
                     .forEach(fold -> {
                         Map<String, Object> params = new HashMap<>();
                         params.put("pli", fold.getData());
@@ -82,23 +95,37 @@ public class App {
                                         + fold.getId() + ".xml");
                                 Files.createParentDirs(xmlFile);
                                 Files.write(XMLUtils.toPrettyString(render.get(), 2).getBytes(), xmlFile);
-                                stats.addNumberDocumentExit(fold.getData().size());
-                                //return Optional.of(xmlFile);
+                                if (xmlFile.exists()) {
+                                    stats.addNumberDocumentExit(fold.getData().size());
+                                    stats.addNumberPliExit(1);
+                                    stats.addNumberFileExit(1);
+                                    //return Optional.of(xmlFile);
+                                }
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
                         //return Optional.<File>empty();
                     });
+            timer.cancel();
+            System.out.println("Création des fichiers de rapports");
+            ReportWriter.createCounter(new File("compteur.txt"), stats);
+            Files.write("Code Rejet, Details Rejet, ID_PLI, En-têtes, Valeurs".getBytes(), new File("Report.csv"));
             detailRejectStream.build().forEach(detailRejects -> {
+                final StringJoiner stringJoiner = new StringJoiner(",");
+                stringJoiner.add(detailRejects.getRejectCode())
+                        .add(detailRejects.getDetailReject())
+                        .add(detailRejects.getFold().getId())
+                        .add(detailRejects.getFold().getHeader().toString())
+                        .add(detailRejects.getFold().getData().toString());
                 try {
-                    Files.write(detailRejects.toString().getBytes(), new File("report.md"));
+                    System.out.println(stringJoiner.toString());
+                    Files.write(stringJoiner.toString().getBytes(), new File("Report.csv"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
-            //System.out.println(Arrays.stream(Package.getPackages()).filter(aPackage -> aPackage.getName().contains("validator")).collect(Collectors.toList()));
-            timer.cancel();
+
             System.out.println();
             System.out.println(stats);
         } catch (ExgedParserException | IOException | ExgedCoreException e) {
@@ -134,16 +161,16 @@ public class App {
 
         @Override
         public void run() {
-            long eta = stats.getNumberDocumentExit() == 0 ? 0 :
-                    (stats.getNumberDocumentEntry() - stats.getNumberDocumentExit()) * (System.currentTimeMillis() - startTime) / stats.getNumberDocumentExit();
+            long eta = stats.getNumberDocumentExit().get() == 0 ? 0 :
+                    ((int) stats.getNumberDocumentEntry().get() - (int) stats.getNumberDocumentExit().get()) * Duration.between(stats.getInstantStart(), Instant.now()).toMillis() / (int) stats.getNumberDocumentExit().get();
 
-            String etaHms = stats.getNumberDocumentExit() == 0 ? "N/A" :
+            String etaHms = stats.getNumberDocumentExit().get() == 0 ? "N/A" :
                     String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
                             TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
                             TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
 
             StringBuilder string = new StringBuilder(140);
-            int percent = (int) (stats.getNumberDocumentExit() * 100 / stats.getNumberDocumentEntry());
+            int percent = (int) (stats.getNumberDocumentExit().get() * 100 / stats.getNumberDocumentEntry().get());
             string
                     .append('\r')
                     .append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
@@ -152,8 +179,8 @@ public class App {
                     .append('>')
                     .append(String.join("", Collections.nCopies(100 - percent, " ")))
                     .append(']')
-                    .append(String.join("", Collections.nCopies((int) (Math.log10(stats.getNumberDocumentEntry())) - (int) (Math.log10(stats.getNumberDocumentExit())), " ")))
-                    .append(String.format(" %d/%d, ETA: %s,RAM(MB): %d/%d", stats.getNumberDocumentExit(), stats.getNumberDocumentEntry(), etaHms, (int) (Runtime.getRuntime().totalMemory() / 1048576.0), (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
+                    .append(String.join("", Collections.nCopies((int) (Math.log10(stats.getNumberDocumentEntry().get())) - (int) (Math.log10(stats.getNumberDocumentExit().get())), " ")))
+                    .append(String.format(" %d/%d, ETA: %s, Row/sec: %d/sec, RAM(MB): %d/%d", stats.getNumberDocumentExit().get(), stats.getNumberDocumentEntry().get(), etaHms, (int) stats.getNumberFileTreatedPerSeconds(), (int) (Runtime.getRuntime().totalMemory() / 1048576.0), (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
             System.out.print(string);
         }
     }

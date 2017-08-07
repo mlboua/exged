@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class CsvFold implements Fold {
 
-    private final String id;
+    private String id;
     private final List<List<String>> data;
     private final Map<String, Integer> headers;
 
@@ -31,6 +31,12 @@ public class CsvFold implements Fold {
     public String getId() {
         return id;
     }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "CsvFold{" +

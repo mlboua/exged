@@ -115,9 +115,11 @@ public class GenericValidator implements Validator {
         })
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .map(reject -> new DetailReject(reject.getCode(), reject.getValues(), validatorToReject.get(reject.getCode()).getDetail(), fold))
+                .map(reject -> {
+                    final Optional<MappingReject> firstReject = validatorToReject.values().stream().filter(rejectMap -> rejectMap.getCode().equals(reject.getCode())).findFirst();
+                    return firstReject.map(mappingReject -> new DetailReject(reject.getCode(), reject.getValues(), mappingReject.getDetail(), fold)).orElse(null);
+                })
                 .collect(Collectors.toList());
-
         if (simpleReject.isEmpty()) {
             final List<DetailReject> complexReject = complexValidatorsToHeadersMap.keySet().stream().map(key -> {
                 try {

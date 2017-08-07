@@ -2,22 +2,24 @@ package stats;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Stats {
 
     private final Instant instantStart;
 
-    private int numberFilesEntry = 0;
+    private AtomicInteger numberFilesEntry = new AtomicInteger(0);
 
-    private int numberPliEntry = 0;
-    private Long numberDocumentEntry = 0L;
+    private AtomicInteger numberPliEntry = new AtomicInteger(0);
+    private AtomicLong numberDocumentEntry = new AtomicLong(0L);
 
-    private int numberFileExit = 0;
-    private int numberPliExit = 0;
-    private Long numberDocumentExit = 0L;
+    private AtomicInteger numberFileExit = new AtomicInteger(0);
+    private AtomicInteger numberPliExit = new AtomicInteger(0);
+    private AtomicLong numberDocumentExit = new AtomicLong(0L);
 
-    private int numberPliNotValid = 0;
-    private int numberDocumentNotValid = 0;
+    private AtomicInteger numberPliNotValid = new AtomicInteger(0);
+    private AtomicInteger numberDocumentNotValid = new AtomicInteger(0);
 
     public Stats() {
         this.instantStart = Instant.now();
@@ -27,91 +29,91 @@ public class Stats {
         return instantStart;
     }
 
-    public final synchronized void addNumberFilesEntry(final int value) {
-        numberFilesEntry = numberFilesEntry + value;
+    public final void addNumberFilesEntry(final int value) {
+        numberFilesEntry.set(numberFilesEntry.get() + value);
     }
 
-    public final synchronized void addNumberPliEntry(final int numberPliEntry) {
-        this.numberPliEntry = this.numberPliEntry + numberPliEntry;
+    public final void addNumberPliEntry(final int numberPliEntry) {
+        this.numberPliEntry.addAndGet(numberPliEntry);
     }
 
-    public final synchronized void addNumberDocumentEntry(final int numberDocumentEntry) {
-        this.numberDocumentEntry = this.numberDocumentEntry + numberDocumentEntry;
+    public final void addNumberDocumentEntry(final int numberDocumentEntry) {
+        this.numberDocumentEntry.addAndGet(numberDocumentEntry);
     }
 
-    public final synchronized void addNumberFileExit(final int numberFileExit) {
-        this.numberFileExit = this.numberFileExit + numberFileExit;
+    public final void addNumberFileExit(final int numberFileExit) {
+        this.numberFileExit.addAndGet(numberFileExit);
     }
 
-    public final synchronized void addNumberPliExit(final int numberPliExit) {
-        this.numberPliExit = this.numberPliExit + numberPliExit;
+    public final void addNumberPliExit(final int numberPliExit) {
+        this.numberPliExit.addAndGet(numberPliExit);
     }
 
-    public final synchronized void addNumberDocumentExit(final int numberDocumentExit) {
-        this.numberDocumentExit = this.numberDocumentExit + numberDocumentExit;
+    public final void addNumberDocumentExit(final int numberDocumentExit) {
+        this.numberDocumentExit.addAndGet(numberDocumentExit);
     }
 
-    public final synchronized void addNumberPliNotValid(final int numberPliNotValid) {
-        this.numberPliNotValid = this.numberPliNotValid + numberPliNotValid;
+    public final void addNumberPliNotValid(final int numberPliNotValid) {
+        this.numberPliNotValid.addAndGet(numberPliNotValid);
     }
 
-    public final synchronized void addNumberDocumentNotValid(final int numberDocumentNotValid) {
-        this.numberDocumentNotValid = this.numberDocumentNotValid + numberDocumentNotValid;
+    public final void addNumberDocumentNotValid(final int numberDocumentNotValid) {
+        this.numberDocumentNotValid.addAndGet(numberDocumentNotValid);
     }
 
     /**
      * @return the numberFilesEntry
      */
-    public final int getNumberFilesEntry() {
+    public final AtomicInteger getNumberFilesEntry() {
         return numberFilesEntry;
     }
 
     /**
      * @return the numberPliEntry
      */
-    public final int getNumberPliEntry() {
+    public final AtomicInteger getNumberPliEntry() {
         return numberPliEntry;
     }
 
     /**
      * @return the numberDocumentEntry
      */
-    public final Long getNumberDocumentEntry() {
+    public final AtomicLong getNumberDocumentEntry() {
         return numberDocumentEntry;
     }
 
     /**
      * @return the numberFileExit
      */
-    public final int getNumberFileExit() {
+    public final AtomicInteger getNumberFileExit() {
         return numberFileExit;
     }
 
     /**
      * @return the numberPliExit
      */
-    public final int getNumberPliExit() {
+    public final AtomicInteger getNumberPliExit() {
         return numberPliExit;
     }
 
     /**
      * @return the numberDocumentExit
      */
-    public final Long getNumberDocumentExit() {
+    public final AtomicLong getNumberDocumentExit() {
         return numberDocumentExit;
     }
 
     /**
      * @return the numberPliNotInExit
      */
-    public final int getNumberPliNotValid() {
+    public final AtomicInteger getNumberPliNotValid() {
         return numberPliNotValid;
     }
 
     /**
      * @return the numberDocumentIgnored
      */
-    public final int getNumberDocumentNotValid() {
+    public final AtomicInteger getNumberDocumentNotValid() {
         return numberDocumentNotValid;
     }
 
@@ -119,7 +121,7 @@ public class Stats {
      * @return the numberFileTreatedPerSeconds
      */
     public final float getNumberFileTreatedPerSeconds() {
-        return getNumberDocumentEntry() / (Duration.between(this.instantStart, Instant.now()).getSeconds());
+        return getNumberDocumentEntry().get() / (float) (Duration.between(this.instantStart, Instant.now()).toMillis() / 1000.0);
     }
 
     /*
@@ -128,29 +130,29 @@ public class Stats {
      */
     @Override
     public String toString() {
-        return "SORTIE: "
+        return "======================== RESUME ========================"
                 + "\n\tTemps d'execution: "
-                + (Duration.between(this.instantStart, Instant.now()).getSeconds())
+                + (Duration.between(this.instantStart, Instant.now()).toMillis() / 1000.0)
                 + "\n\tNombre de documents traités par secondes: "
                 + getNumberFileTreatedPerSeconds()
                 + "\n======================== ENTREE ========================"
                 + "\n\tNombre de fichiers d'entrée traités: "
-                + numberFilesEntry
+                + numberFilesEntry.get()
                 + "\n\tNombre de plis en entrée: "
-                + numberPliEntry
+                + numberPliEntry.get()
                 + "\n\tNombre de documents en entrée: "
-                + numberDocumentEntry
+                + numberDocumentEntry.get()
                 + "\n===================== SORTIE VALIDE ===================="
                 + "\n\tNombre de fichiers de sortie générés: "
-                + numberFileExit
+                + numberFileExit.get()
                 + "\n\tNombre de plis en sortie: "
-                + numberPliExit
+                + numberPliExit.get()
                 + "\n\tNombre de documents en sortie: "
-                + numberDocumentExit
+                + numberDocumentExit.get()
                 + "\n=================== SORTIE NON VALIDE =================="
                 + "\n\tNombre de plis non valide "
-                + numberPliNotValid
+                + numberPliNotValid.get()
                 + "\n\tNombre de documents non valide: "
-                + numberDocumentNotValid;
+                + numberDocumentNotValid.get();
     }
 }

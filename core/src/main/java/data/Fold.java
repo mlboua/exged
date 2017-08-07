@@ -7,6 +7,8 @@ public interface Fold {
 
     String getId();
 
+    void setId(String id);
+
     List<List<String>> getData();
 
     Map<String, Integer> getHeader();
