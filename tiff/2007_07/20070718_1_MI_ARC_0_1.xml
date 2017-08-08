@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PLI>
+    <nbDocs>1</nbDocs>
+    <DocumentICC>
+        <InheritedMetaData>
+            <IdLot>20070718_1_MI_ARC_0</IdLot>
+            <IdPli>20070718_1_MI_ARC_0_1</IdPli>
+            <DateNum>20070718</DateNum>
+            <NbDocs>1</NbDocs>
+            <Source>OMNIREP</Source>
+            <Canal>MI</Canal>
+            <Filieres>ARC</Filieres>
+            <Recommande>FAUX</Recommande>
+            <NumeroBoite>20070718_ACTION SOCIALE</NumeroBoite>
+            <Renum>FAUX</Renum>
+        </InheritedMetaData>
+        <DirectMetaData>
+            <RefOrigine>2580538</RefOrigine>
+            <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+            <FileName>20070718_1_MI_ARC_0_1.tif</FileName>
+            <Titre>ACTION SOCIALE_� attribuer_COURRIER CAISSE</Titre>
+            <IdDocTN>07199017_PLI_0003_X0000000_ACTI_ATTR</IdDocTN>
+            <ModeVideocodage>FAUX</ModeVideocodage>
+            <Type>test COURRIER CAISSE type</Type>
+            <SousType>test COURRIER CAISSE sous-type</SousType>
+            <DocumentMaitre>FAUX</DocumentMaitre>
+            <Confidentiel>FAUX</Confidentiel>
+            <Medical>FAUX</Medical>
+            <Interne>FAUX</Interne>
+            <NbPages>1</NbPages>
+        </DirectMetaData>
+    </DocumentICC>
+</PLI>

@@ -1,19 +1,14 @@
 package writer.reports;
 
-import stats.Stats;
+import config.json.mapping.reports.MappingReports;
+import data.Fold;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Stream;
 
-public class ReportWriter {
+public interface ReportWriter {
 
-    private ReportWriter() {
-    }
+    void createReport(MappingReports mappingReports, List<Fold> foldList);
 
-    public static void createCounter(File reportFile, Stats stats) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(stats.toString());
-        Files.write(reportFile.toPath(), stringBuilder.toString().getBytes());
-    }
+    void createReport(MappingReports mappingReports, Stream<Fold> foldList);
 }

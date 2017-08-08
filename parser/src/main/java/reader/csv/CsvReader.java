@@ -49,7 +49,7 @@ public class CsvReader implements Reader {
     }
 
     private Map<String, Integer> getHeaders(String[] headers) {
-        final Map<String, Integer> headersMap = new HashMap<>();
+        final Map<String, Integer> headersMap = new LinkedHashMap<>();
         IntStream.range(0, headers.length).forEach(
                 key -> headersMap.put(headers[key], key));
         return headersMap;
@@ -57,6 +57,13 @@ public class CsvReader implements Reader {
 
     public Long countRows(File file) throws IOException {
         return Files.lines(file.toPath()).count();
+    }
+
+    public String[] getHeader(File file, String seperator) throws IOException {
+        return Files.lines(file.toPath())
+                .findFirst()
+                .map(headers -> headers.split(seperator))
+                .orElseGet(() -> new String[0]);
     }
 
     public Long countRowsFolder(File directory) throws IOException {

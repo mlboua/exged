@@ -1,0 +1,14 @@
+======================== RESUME ========================
+	Temps d'execution: 2.524
+	Nombre de documents traités par secondes: 12.678288
+======================== ENTREE ========================
+	Nombre de fichiers d'entrée traités: 2
+	Nombre de plis en entrée: 29
+	Nombre de documents en entrée: 32
+===================== SORTIE VALIDE ====================
+	Nombre de fichiers de sortie générés: 28
+	Nombre de plis en sortie: 28
+	Nombre de documents en sortie: 28
+=================== SORTIE NON VALIDE ==================
+	Nombre de plis non valide 1
+	Nombre de documents non valide: 1

@@ -46,19 +46,18 @@ public class fileMapperList implements Creator {
     }
 
     @Override
-    public Fold createValue(Fold fold, MappingCreator mappingCreator, Map<String, Integer> headers) {
+    public void createValue(Fold fold, MappingCreator mappingCreator) {
         if (!mapperFile.containsKey(mappingCreator.getArguments().get(0))) {
             init(Arrays.asList(mappingCreator));
         }
         String valueToAdd = mapperFile.get(mappingCreator.getArguments().get(0))                    // Map du fichier
                 .get(fold.getData().get(0)                          // Get de la valeur dans le pli à l'index du header
-                        .get(headers.get(
+                        .get(fold.getHeader().get(
                                 mappingCreator.getHeaders().get(0))
                         )
                 )
                 .get(Integer.parseInt(mappingCreator.getArguments().get(2)));   // Get de la valeur demandé dans le resultat de la map
         fold.getData().forEach(row -> row.add(valueToAdd));
         fold.getHeader().put(mappingCreator.getName(), fold.getData().get(0).indexOf(valueToAdd));
-        return fold;
     }
 }

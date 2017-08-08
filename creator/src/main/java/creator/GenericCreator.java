@@ -43,7 +43,7 @@ public class GenericCreator {
     public Fold createFields(Fold fold, Map<String, Integer> headers) {
         mappingCreatorList.forEach(mappingCreator -> {
             if (creatorMap.containsKey(mappingCreator.getCreator())) {
-                creatorMap.get(mappingCreator.getCreator()).createValue(fold, mappingCreator, headers);
+                creatorMap.get(mappingCreator.getCreator()).createValue(fold, mappingCreator);
             } else {
                 System.out.println(mappingCreator.getCreator());
             }

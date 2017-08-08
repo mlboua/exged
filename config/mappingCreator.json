@@ -1,10 +1,14 @@
 [
   {
-    "name": "NUM_LOT",
-    "creator": "concat",
-    "headers": [],
+    "name": "DB_DATE_NUM",
+    "creator": "counter",
+    "headers": [
+      "NUM_PLI",
+      "NUM_LOT"
+    ],
     "arguments": [
-      "_"
+      "999",
+      "9999"
     ]
   },
   {
@@ -12,7 +16,8 @@
     "creator": "concat",
     "headers": [
       "DB_DATE_NUM",
-      "1_MI_ARC"
+      "1_MI_ARC",
+      "NUM_LOT"
     ],
     "arguments": [
       "_"
@@ -23,7 +28,9 @@
     "creator": "concat",
     "headers": [
       "DB_DATE_NUM",
-      "1_MI_ARC"
+      "1_MI_ARC",
+      "NUM_LOT",
+      "NUM_PLI"
     ],
     "arguments": [
       "_"

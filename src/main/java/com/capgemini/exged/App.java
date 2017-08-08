@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import config.json.mapping.mainConfig.Config;
 import creator.GenericCreator;
 import data.Data;
+import data.Fold;
 import engine.TemplateEngineExecutor;
 import exception.ExgedCoreException;
 import exception.ExgedParserException;
@@ -18,7 +19,8 @@ import reports.GenericReportRow;
 import stats.Stats;
 import validator.DetailReject;
 import validator.GenericValidator;
-import writer.reports.ReportWriter;
+import writer.csv.CsvWrite;
+import writer.reports.csv.CsvReportWriter;
 import writer.xml.XMLUtils;
 
 import java.io.File;
@@ -66,7 +68,7 @@ public class App {
             timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 5000);
 
             //Traitement
-            reader.readFolderParallel(new File(config.getSplittedTempFolder()))         // Read lines to -> List<List<String>>
+            final List<Fold> foldList = reader.readFolderParallel(new File(config.getSplittedTempFolder()))         // Read lines to -> List<List<String>>
                     .flatMap(Data::foldStream)                                          // FilesRows -> Rows -> Folds
                     .filter(fold -> {                                                   // Validation
                         stats.addNumberPliEntry(1);
@@ -75,7 +77,11 @@ public class App {
                             stats.addNumberPliNotValid(1);
                             stats.addNumberDocumentNotValid(fold.getData().size());
                             rejects.get().forEach(reject -> {
-                                detailRejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail(), fold));
+                                if (reject.getValues().isPresent()) {
+                                    detailRejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail() + ": " + reject.getValues().get(), fold));
+                                } else {
+                                    detailRejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail(), fold));
+                                }
                             });
                             return false;
                         }
@@ -83,7 +89,7 @@ public class App {
                     })
                     .map(fold -> genericCreator.createFields(fold, fold.getHeader()))  // Création des valeurs complémentaires
                     .peek(fold -> fold.setId(fold.getData().get(0).get(fold.getHeader().get("ID_PLI")))) // Changement de l'ID  du pli
-                    .forEach(fold -> {
+                    .peek(fold -> {
                         Map<String, Object> params = new HashMap<>();
                         params.put("pli", fold.getData());
                         params.put("headers", fold.getHeader());
@@ -106,31 +112,38 @@ public class App {
                             }
                         }
                         //return Optional.<File>empty();
-                    });
-            timer.cancel();
-            System.out.println("Création des fichiers de rapports");
-            ReportWriter.createCounter(new File("compteur.txt"), stats);
-            Files.write("Code Rejet, Details Rejet, ID_PLI, En-têtes, Valeurs".getBytes(), new File("Report.csv"));
-            detailRejectStream.build().forEach(detailRejects -> {
-                final StringJoiner stringJoiner = new StringJoiner(",");
-                stringJoiner.add(detailRejects.getRejectCode())
-                        .add(detailRejects.getDetailReject())
-                        .add(detailRejects.getFold().getId())
-                        .add(detailRejects.getFold().getHeader().toString())
-                        .add(detailRejects.getFold().getData().toString());
-                try {
-                    System.out.println(stringJoiner.toString());
-                    Files.write(stringJoiner.toString().getBytes(), new File("Report.csv"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+                    })
+                    .collect(Collectors.toList());
 
+            CsvWrite.writeCsvFile(new File("traceFold.csv"), foldList.get(0).getHeader().keySet().toArray(new String[foldList.get(0).getHeader().keySet().size()]), foldList.stream().flatMap(fold -> fold.getData().stream().map(row -> row.toArray(new String[row.size()]))).collect(Collectors.toList()));
+            timer.cancel();
             System.out.println();
+            System.out.println("Création des fichiers de rapports");
+
+            String[] headers = {"DOCIDX", "DOCIDXGED", "DB_NUMPLI", "FILENAMED", "ID_PLI", "CODE_REJET", "DETAIL_REJET"};
+            final List<GenericReportRow> genericReportRowList = detailRejectStream.build().collect(Collectors.toList());
+            final List<String[]> rejectList = genericReportRowList.stream()
+                    .map(reject -> {
+                        final List<String> rejectListTemp = new ArrayList<>();
+                        rejectListTemp.add(getValue(reject.getFold(), "DOCIDX"));
+                        rejectListTemp.add(getValue(reject.getFold(), "DOCIDXGED"));
+                        rejectListTemp.add(getValue(reject.getFold(), "DB_NUMPLI"));
+                        rejectListTemp.add(getValue(reject.getFold(), "FLENAMED"));
+                        rejectListTemp.add(reject.getRejectCode());
+                        rejectListTemp.add(reject.getDetailReject());
+                        return rejectListTemp.toArray(new String[rejectListTemp.size()]);
+                    }).collect(Collectors.toList());
+            CsvReportWriter.createCounter(new File("compteur.txt"), stats, genericReportRowList.stream().collect(Collectors.groupingBy(GenericReportRow::getRejectCode)));
+            CsvWrite.writeCsvFile(new File("report.csv"), headers, rejectList);
+
             System.out.println(stats);
         } catch (ExgedParserException | IOException | ExgedCoreException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getValue(Fold fold, String value) {
+        return fold.getData().get(0).get(fold.getHeader().get(value));
     }
 
     private static String detectDate(String date) {
@@ -161,6 +174,13 @@ public class App {
 
         @Override
         public void run() {
+            try {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             long eta = stats.getNumberDocumentExit().get() == 0 ? 0 :
                     ((int) stats.getNumberDocumentEntry().get() - (int) stats.getNumberDocumentExit().get()) * Duration.between(stats.getInstantStart(), Instant.now()).toMillis() / (int) stats.getNumberDocumentExit().get();
 
@@ -179,8 +199,12 @@ public class App {
                     .append('>')
                     .append(String.join("", Collections.nCopies(100 - percent, " ")))
                     .append(']')
-                    .append(String.join("", Collections.nCopies((int) (Math.log10(stats.getNumberDocumentEntry().get())) - (int) (Math.log10(stats.getNumberDocumentExit().get())), " ")))
-                    .append(String.format(" %d/%d, ETA: %s, Row/sec: %d/sec, RAM(MB): %d/%d", stats.getNumberDocumentExit().get(), stats.getNumberDocumentEntry().get(), etaHms, (int) stats.getNumberFileTreatedPerSeconds(), (int) (Runtime.getRuntime().totalMemory() / 1048576.0), (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
+                    .append(String.join("", Collections.nCopies((int) (Math.log10(stats.getNumberDocumentEntry().get())) - (int) (Math.log10(stats.getNumberDocumentExit().get())),
+                            " ")))
+                    .append(String.format(" %d/%d, ETA: %s, Row/sec: %d/sec, RAM(MB): %d/%d",
+                            stats.getNumberDocumentExit().get(), stats.getNumberDocumentEntry().get(), etaHms,
+                            (int) stats.getNumberFileTreatedPerSeconds(), (int) (Runtime.getRuntime().totalMemory() / 1048576.0),
+                            (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
             System.out.print(string);
         }
     }

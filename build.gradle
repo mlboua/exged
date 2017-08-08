@@ -48,6 +48,7 @@ repositories {
 }*/
 
 dependencies {
+    compile "com.googlecode.lanterna:lanterna:3.0.0-rc1"
     compile project(':core')
     compile project(':converter')
     compile project(':parser')
