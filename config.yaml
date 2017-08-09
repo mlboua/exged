@@ -1,34 +1,22 @@
-# Configuration of the migration
-# Relative or absolute path
+#
+# ███████ ██   ██  ██████  ███████ ██████       ██████  ██████  ███    ██ ███████ ██  ██████
+# ██       ██ ██  ██       ██      ██   ██     ██      ██    ██ ████   ██ ██      ██ ██
+# █████     ███   ██   ███ █████   ██   ██     ██      ██    ██ ██ ██  ██ █████   ██ ██   ███
+# ██       ██ ██  ██    ██ ██      ██   ██     ██      ██    ██ ██  ██ ██ ██      ██ ██    ██
+# ███████ ██   ██  ██████  ███████ ██████       ██████  ██████  ██   ████ ██      ██  ██████
 ---
 # Global
-idTreatement: TEST_1
-migration: omnirep # allur | adhpr | exged
-mode: dev # dev | prod
-numberOfFoldPerArchive: 2500 # 5000 ~= 1GB
+idTreatement: TEST_1          # Identifiant du traitement, cet identifiant est utilisé pour classer les différents traitement
+migration: omnirep            # Exemple: allur | adhpr | omnirep
+mode: dev                     # dev (ne copie pas les fichiers externe) | prod
 
-# Sort
-foldSort: ID_PLI
+# Configuration des chemins
+inputFolder: input            # Dossier d'entrée pour les fichiers
+tempFolder: temp              # Dossier temporaire pour les traitement (fichiers fragmentés, fichiers générés avec le template)
+outputFolder: archives        # Dossier de sortie de l'application
+externFilesPath: ../../       # Emplacement des fichiers externe
+configFolder: config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
+resumeFolder: traitement      # Dossier pour la sauvegar des logs et fichiers de rapports
 
-# Folders config
-inputFolder: input
-tempFolder: temp
-outputFolder: archives
-
-pdfPath: ../../
-
-configFolder: config
-resumeFolder: traitement
-
-# Step 1 - Splitter
-splitterNumberOfLinePerFile: 100000 # 100 000 Offer the best performance, More than 200 000 use too much ram and the processing will be much longer
-
-# Step 2 - Extraction
-# Files in "configFolder"
-headersFile: headers.csv
-sStoRNIFile: ALLOC_MM-V2.txt
-oldToNewModelFile: ModelConvertor.txt
-
-# Step 3 - Translate
-# Files in "configFolder"
-configMetierFile: configMetier.csv  # ExGED Only
+# Autres paramètres de configurations
+tempFilesNumberOfLines: 25000 # Nombre de lignes pour les fichiers temporaires (défaut: 25000) /!\ Une valeur importante peut causer des problèmes mémoire

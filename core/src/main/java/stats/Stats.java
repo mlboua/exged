@@ -153,6 +153,11 @@ public class Stats {
                 + "\n\tNombre de plis non valide "
                 + numberPliNotValid.get()
                 + "\n\tNombre de documents non valide: "
-                + numberDocumentNotValid.get();
+                + numberDocumentNotValid.get()
+                + "\n=================== SORTIE TOTAL =================="
+                + "\n\tNombre de plis: "
+                + (numberPliNotValid.get() + numberPliExit.get())
+                + "\n\tNombre de documents: "
+                + (numberDocumentNotValid.get() + numberDocumentExit.get());
     }
 }

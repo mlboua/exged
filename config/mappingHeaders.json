@@ -1,37 +1,31 @@
 {
-  "multiHeaders": [
+  "multiHeaders": [],
+  "uniqueHeader": [
     {
-      "name": "allur-distribution",
-      "headers": [
-        "CO_TYPE_DISTRI",
-        "CO_STATUT"
-      ],
+      "name": "SERVICE",
       "validators": {
         "simple": [
-          "exged-distribution"
+          "notNull"
+        ],
+        "complex": [
+          {
+            "name": "notEgalTo",
+            "arguments": [
+              "ACTION SOCIALE",
+              "SANTE",
+              "CARRIERE",
+              "RECOUVREMENT",
+              "RETRAITE"
+            ]
+          }
         ]
       }
-    }
-  ],
-  "uniqueHeader": [
+    },
     {
       "name": "DB_DATE_NUM",
       "validators": {
         "simple": [
           "notNull"
-        ]
-      }
-    },
-    {
-      "name": "NUMSS",
-      "validators": {
-        "complex": [
-          {
-            "name": "matchLength",
-            "arguments": [
-              "15"
-            ]
-          }
         ]
       }
     },
@@ -43,6 +37,19 @@
             "name": "matchLength",
             "arguments": [
               "14"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "NUMSS",
+      "validators": {
+        "complex": [
+          {
+            "name": "matchLength",
+            "arguments": [
+              "15"
             ]
           }
         ]

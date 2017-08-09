@@ -23,9 +23,9 @@ public class CsvReportWriter {
     public static void createCounter(File reportFile, Stats stats, Map<String, Map<String, List<GenericReportRow>>> errors) throws IOException {
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(stats.toString())
-                .append("\n============= ERREURS =============\n");
+                .append("\n=================== ERREURS ===================\n");
         errors.forEach((error, detailError) ->
-                detailError.forEach((detailErrorName, genericReportRow) -> stringBuilder.append(error).append(": ").append(genericReportRow.size()).append(" - ").append(detailError))
+                detailError.forEach((detailErrorName, genericReportRow) -> stringBuilder.append(error).append(": ").append(genericReportRow.size()).append(" - ").append(genericReportRow.get(0).getDetailReject()).append("\n"))
         );
         Files.write(reportFile.toPath(), stringBuilder.toString().getBytes());
     }

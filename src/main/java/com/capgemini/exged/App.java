@@ -65,7 +65,9 @@ public class App {
 
             // Lancement du stats dans la console
             Timer timer = new Timer(true);
-            timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 5000);
+            timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 500);
+
+            // System.out.println(reader.readFolderParallel(new File(config.getSplittedTempFolder())).flatMap(Data::foldStream).count());         // Read lines to -> List<List<String>
 
             //Traitement
             final List<Fold> foldList = reader.readFolderParallel(new File(config.getSplittedTempFolder()))         // Read lines to -> List<List<String>>
@@ -133,7 +135,11 @@ public class App {
                         rejectListTemp.add(reject.getDetailReject());
                         return rejectListTemp.toArray(new String[rejectListTemp.size()]);
                     }).collect(Collectors.toList());
-            CsvReportWriter.createCounter(new File("compteur.txt"), stats, genericReportRowList.stream().collect(Collectors.groupingBy(GenericReportRow::getRejectCode)));
+            CsvReportWriter.createCounter(new File("compteur.txt"),
+                    stats,
+                    genericReportRowList.stream()
+                            .collect(Collectors.groupingBy(GenericReportRow::getRejectCode,
+                                    Collectors.groupingBy(GenericReportRow::getDetailReject))));
             CsvWrite.writeCsvFile(new File("report.csv"), headers, rejectList);
 
             System.out.println(stats);
@@ -181,16 +187,16 @@ public class App {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            long eta = stats.getNumberDocumentExit().get() == 0 ? 0 :
-                    ((int) stats.getNumberDocumentEntry().get() - (int) stats.getNumberDocumentExit().get()) * Duration.between(stats.getInstantStart(), Instant.now()).toMillis() / (int) stats.getNumberDocumentExit().get();
+            long eta = stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get() == 0 ? 0 :
+                    ((int) stats.getNumberDocumentEntry().get() - ((int) stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get())) * Duration.between(stats.getInstantStart(), Instant.now()).toMillis() / ((int) stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get());
 
-            String etaHms = stats.getNumberDocumentExit().get() == 0 ? "N/A" :
+            String etaHms = stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get() == 0 ? "N/A" :
                     String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
                             TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
                             TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
 
             StringBuilder string = new StringBuilder(140);
-            int percent = (int) (stats.getNumberDocumentExit().get() * 100 / stats.getNumberDocumentEntry().get());
+            int percent = (int) ((stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get()) * 100 / stats.getNumberDocumentEntry().get());
             string
                     .append('\r')
                     .append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
@@ -199,10 +205,10 @@ public class App {
                     .append('>')
                     .append(String.join("", Collections.nCopies(100 - percent, " ")))
                     .append(']')
-                    .append(String.join("", Collections.nCopies((int) (Math.log10(stats.getNumberDocumentEntry().get())) - (int) (Math.log10(stats.getNumberDocumentExit().get())),
+                    .append(String.join("", Collections.nCopies((int) (Math.log10(stats.getNumberDocumentEntry().get())) - ((int) (Math.log10(stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get()))),
                             " ")))
                     .append(String.format(" %d/%d, ETA: %s, Row/sec: %d/sec, RAM(MB): %d/%d",
-                            stats.getNumberDocumentExit().get(), stats.getNumberDocumentEntry().get(), etaHms,
+                            (stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get()), stats.getNumberDocumentEntry().get(), etaHms,
                             (int) stats.getNumberFileTreatedPerSeconds(), (int) (Runtime.getRuntime().totalMemory() / 1048576.0),
                             (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
             System.out.print(string);

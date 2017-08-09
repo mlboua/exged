@@ -1,14 +1,19 @@
 ======================== RESUME ========================
-	Temps d'execution: 2.524
-	Nombre de documents traités par secondes: 12.678288
+	Temps d'execution: 23.055
+	Nombre de documents traités par secondes: 350.90002
 ======================== ENTREE ========================
-	Nombre de fichiers d'entrée traités: 2
-	Nombre de plis en entrée: 29
-	Nombre de documents en entrée: 32
+	Nombre de fichiers d'entrée traités: 808
+	Nombre de plis en entrée: 8090
+	Nombre de documents en entrée: 8090
 ===================== SORTIE VALIDE ====================
-	Nombre de fichiers de sortie générés: 28
-	Nombre de plis en sortie: 28
-	Nombre de documents en sortie: 28
+	Nombre de fichiers de sortie générés: 2180
+	Nombre de plis en sortie: 2180
+	Nombre de documents en sortie: 2180
 =================== SORTIE NON VALIDE ==================
-	Nombre de plis non valide 1
-	Nombre de documents non valide: 1
+	Nombre de plis non valide 5910
+	Nombre de documents non valide: 5910
+=================== SORTIE TOTAL ==================
+	Nombre de plis: 8090
+	Nombre de documents: 8090
+=================== ERREURS ===================
+Generic-7: 4224 - Des valeurs ne sont pas autoris�es: [SERVICE - Line 0]Generic-1: 1686 - Valeur Obligatoire non pr�sente: [SERVICE - Line 0]

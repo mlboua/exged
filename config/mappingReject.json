@@ -59,6 +59,17 @@
     }
   },
   {
+    "code": "Generic-7",
+    "detail": "Des valeurs ne sont pas autorisées",
+    "validators": {
+      "complex": [
+        {
+          "name": "notEgalTo"
+        }
+      ]
+    }
+  },
+  {
     "code": "ALLUR/ADHPR-1",
     "detail": "Plus d'une distribution GED",
     "validators": {

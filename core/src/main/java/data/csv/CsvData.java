@@ -45,7 +45,7 @@ public class CsvData implements Data {
         Stream.Builder<Fold> streamFold = Stream.builder();
         final CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
         final Map<String, List<List<String>>> foldTemp = new HashMap<>();
-        this.stream().forEach(row -> {
+        this.rows.forEach(row -> {
             Optional<CsvIdentifier> identifier = csvIdentifierValidation.validate(identifiers, row);
             if (identifier.isPresent()) {
                 String idRow = row.get(identifier.get().getIndex());

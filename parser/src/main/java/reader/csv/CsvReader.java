@@ -1,7 +1,5 @@
 package reader.csv;
 
-import com.univocity.parsers.common.ParsingContext;
-import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.common.processor.RowListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
@@ -56,7 +54,7 @@ public class CsvReader implements Reader {
     }
 
     public Long countRows(File file) throws IOException {
-        return Files.lines(file.toPath()).count();
+        return Files.lines(file.toPath()).count() - 1;
     }
 
     public String[] getHeader(File file, String seperator) throws IOException {
@@ -93,17 +91,16 @@ public class CsvReader implements Reader {
             final List<String[]> rows = new ArrayList<>(numberForEachFile + 20);
             String idFold = "firstValue";
 
-            final ResultIterator<String[], ParsingContext> iterator = parser.iterate(file).iterator();
-            for (Iterator<String[]> iter = iterator; iterator.hasNext(); ) {
-                String[] row = iter.next();
+            parser.beginParsing(file);
+            for (String[] strings : rowProcessor.getRows()) {
                 if (rows.size() >= numberForEachFile) {
                     CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
-                    Optional<CsvIdentifier> identifier = csvIdentifierValidation.validate(identifiers, Arrays.asList(row));
-                    if(identifier.isPresent()) {
+                    Optional<CsvIdentifier> identifier = csvIdentifierValidation.validate(identifiers, Arrays.asList(strings));
+                    if (identifier.isPresent()) {
                         final int indexId = identifier.get().getIndex();
                         if ("firstValue".equals(idFold)) {
-                            idFold = row[indexId];
-                        } else if (!idFold.equals(row[indexId])) {
+                            idFold = strings[indexId];
+                        } else if (!idFold.equals(strings[indexId])) {
                             File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + files.size() + ".csv");
                             writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
                             System.out.println("New file created " + fileSplit.getName());
@@ -111,12 +108,12 @@ public class CsvReader implements Reader {
                             rows.clear();
                             System.gc();
                         }
-                        rows.add(row);
+                        rows.add(strings);
                     } else {
-                        throw new ExgedParserException("Impossible de trouvé l'ID pour la ligne (" + row + ")");
+                        throw new ExgedParserException("Impossible de trouvé l'ID pour la ligne (" + strings + ")");
                     }
                 } else {
-                    rows.add(row);
+                    rows.add(strings);
                 }
             }
             if (!rows.isEmpty()) {
@@ -135,9 +132,7 @@ public class CsvReader implements Reader {
         final RowListProcessor rowProcessor = new RowListProcessor();
         final CsvParser parser = createCsvParser(rowProcessor);
         parser.parse(file);
-
         final List<List<String>> rows = convertRowsToArrayList(rowProcessor);
-
         if (headersExtraction) {
             final Map<String, Integer> headers = getHeaders(parser.getContext().selectedHeaders());
             return new CsvData(this.csvIdentifiers, headers, Collections.unmodifiableList(rows));
@@ -172,6 +167,9 @@ public class CsvReader implements Reader {
     @Override
     public Stream<Data> readFolderParallel(File directory) throws ExgedParserException {
         try {
+            System.out.println(Files
+                    .list(directory.toPath())
+                    .filter(path -> path.toString().endsWith(".csv")).count());
             verifyFolder(directory);
             return Files
                     .list(directory.toPath())

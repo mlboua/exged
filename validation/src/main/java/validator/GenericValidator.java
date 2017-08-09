@@ -106,7 +106,7 @@ public class GenericValidator implements Validator {
             try {
                 final Optional<Reject> reject = simpleConditions.get(key).validate(validatorToReject.get(key).getCode(), fold, simpleValidatorsToHeadersMap.get(key), fold.getHeader());
                 if (reject.isPresent()) {
-                    return Optional.of(new DetailReject(reject.get().getCode(), reject.get().getValues(), validatorToReject.get(key).getDetail(), fold));
+                    return Optional.of(new DetailReject(reject.get().getCode(), reject.get().getValues().get(), validatorToReject.get(key).getDetail(), fold));
                 }
             } catch (ExgedValidatorException e) {
                 e.printStackTrace();
@@ -117,7 +117,7 @@ public class GenericValidator implements Validator {
                 .map(Optional::get)
                 .map(reject -> {
                     final Optional<MappingReject> firstReject = validatorToReject.values().stream().filter(rejectMap -> rejectMap.getCode().equals(reject.getCode())).findFirst();
-                    return firstReject.map(mappingReject -> new DetailReject(reject.getCode(), reject.getValues(), mappingReject.getDetail(), fold)).orElse(null);
+                    return firstReject.map(mappingReject -> new DetailReject(reject.getCode(), reject.getValues().get(), mappingReject.getDetail(), fold)).orElse(null);
                 })
                 .collect(Collectors.toList());
         if (simpleReject.isEmpty()) {
@@ -125,7 +125,7 @@ public class GenericValidator implements Validator {
                 try {
                     final Optional<Reject> reject = complexConditions.get(key).validate(validatorToReject.get(key).getCode(), fold, complexValidatorsToHeadersMap.get(key), fold.getHeader());
                     if (reject.isPresent()) {
-                        return Optional.of(new DetailReject(reject.get().getCode(), reject.get().getValues(), validatorToReject.get(key).getDetail(), fold));
+                        return Optional.of(new DetailReject(reject.get().getCode(), reject.get().getValues().get(), validatorToReject.get(key).getDetail(), fold));
                     }
                 } catch (ExgedValidatorException e) {
                     e.printStackTrace();
