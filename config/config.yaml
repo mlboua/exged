@@ -4,6 +4,15 @@
 # █████     ███   ██   ███ █████   ██   ██     ██      ██    ██ ██ ██  ██ █████   ██ ██   ███
 # ██       ██ ██  ██    ██ ██      ██   ██     ██      ██    ██ ██  ██ ██ ██      ██ ██    ██
 # ███████ ██   ██  ██████  ███████ ██████       ██████  ██████  ██   ████ ██      ██  ██████
+
+# Informations générales
+#
+# - Les chemins peuvent être relatif ou absolu.
+#   Exemple: ../fichierdPdf
+#            /appli/test/exged/config
+# - Les noms des fichiers de configuration ne doivent pas être changés, mais ils peuvent être en JSON ou YAML
+# - Les Templates doivent avoir l'extension "xxx.template"
+# Pour plus d'informations, veuillez lire le readme.md
 ---
 # Global
 idTreatement: TEST_1          # Identifiant du traitement, cet identifiant est utilisé pour classer les différents traitement
@@ -11,12 +20,13 @@ migration: omnirep            # Exemple: allur | adhpr | omnirep
 mode: dev                     # dev (ne copie pas les fichiers externe) | prod
 
 # Configuration des chemins
+configFolder: config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
+
 inputFolder: input            # Dossier d'entrée pour les fichiers
 tempFolder: temp              # Dossier temporaire pour les traitement (fichiers fragmentés, fichiers générés avec le template)
 outputFolder: archives        # Dossier de sortie de l'application
-externFilesPath: ../../       # Emplacement des fichiers externe
-configFolder: config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
 resumeFolder: traitement      # Dossier pour la sauvegar des logs et fichiers de rapports
+externFilesPath: ../../       # Emplacement des fichiers externe
 
 # Autres paramètres de configurations
 tempFilesNumberOfLines: 25000 # Nombre de lignes pour les fichiers temporaires (défaut: 25000) /!\ Une valeur importante peut causer des problèmes mémoire
