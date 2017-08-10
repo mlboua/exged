@@ -1,8 +1,13 @@
-# Exged
+Exged
+===================
 
 Exged est une application pour exécuter des migrations.
 
-## TODO:
+📖 Doc pour la version: **Exged-2.0-SNAPSHOT**
+
+----------
+
+## TODO
 
 Principal:
 - Module delivery (0.5)
@@ -18,6 +23,27 @@ Secondaire:
 
 A voir:
 - Refaire le code en Kotlin pour faire marcher l'application sur toutes les machines avec Java 6 d'installé. (Conversion du code automotisé grâce à IntelliJ) (3)
+
+## Fonctionnement
+```flow
+st=>start: Debut
+e=>end: Fin
+readConfig=>operation: Lecture config
+readIntputFolder=>operation: Lecture du dossier d'input
+rowToFold=>operation: Detection des plis
+valid=>operation: Validation des plis
+validFold=>condition: Pli valide?
+rejectBuild=>operation: Ajout du pli dans le flux(stream) de rejet
+createFold=>operation: Ajout des nouvelles en-têtes à créer
+changeIDFold=>operation: Changement de l'ID du pli si besoin
+renderFold=>operation: Rendu des pli avec le template
+deliveryFold=>operation: Livraison des pli généré
+reportCreator=>operation: Création des fichiers de rapports
+
+st->readConfig->readIntputFolder->rowToFold->valid->validFold
+validFold(yes)->createFold->changeIDFold->renderFold->deliveryFold->reportCreator->e
+validFold(no)->rejectBuild->reportCreator->e
+```
 
 
 ## Configuration
@@ -721,6 +747,10 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
 
 ### Ajout d'un validateurs non existant
 
+Il faut créer une nouvelle classe dans le module **validation**
+et mettre l'annotation suivate: @ValidatorAnnotation(name = "notNull", type = "simple")
+
+
 
 ### Ajout d'un créateur non existant
 
@@ -746,7 +776,7 @@ Contacter Charles Delorme à l'adresse email: charlesdelormefr@gmail.com
 - Selectionner **Use default wrapper (recommended)**
 - Patienter quelques secondes le temps qu'IntelliJ detecte tout les modules et télécharge les librairies
 
-#### Lancement du projet
+#### 🚀 Lancement du projet
 
  - Aller dans l'onglet **Run** puis cliquer sur **Edit Configuration**
  - Cliquer sur le **+** et ensuite sur **Gradle**
@@ -771,7 +801,7 @@ Télécharger la version préparé d'eclipse avec les plugins et configuration p
 
 Le projet **exged** est la racine du projet, les autres projets sont des sous-modules de l'application
 
-#### Lancement du projet
+#### 🚀 Lancement du projet
 - Cliquer sur le menu **Run**, puis sur l'item **Run configuration**
 - Cliquer sur **Gradle Project** et ensuite sur l'icone **+** pour créer une nouvelle configuration
 - Nommer la configuration

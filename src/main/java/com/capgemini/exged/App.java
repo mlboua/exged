@@ -65,7 +65,7 @@ public class App {
 
             // Lancement du stats dans la console
             Timer timer = new Timer(true);
-            timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 500);
+            timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 1000);
 
             // System.out.println(reader.readFolderParallel(new File(config.getSplittedTempFolder())).flatMap(Data::foldStream).count());         // Read lines to -> List<List<String>
 
