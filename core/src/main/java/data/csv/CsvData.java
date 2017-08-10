@@ -65,7 +65,7 @@ public class CsvData implements Data {
     @Override
     public String toString() {
         return "CsvData{" +
-                "headers.size()=" + headers.keySet().size() +
+                "validations.size()=" + headers.keySet().size() +
                 ", rows.size()=" + rows.size() +
                 '}';
     }

@@ -9,7 +9,7 @@
 #
 # - Les chemins peuvent être relatif ou absolu.
 #   Exemple: ../fichierdPdf
-#            /appli/test/exged/config
+#            /appli/test/exged/mainconfig
 # - Les noms des fichiers de configuration ne doivent pas être changés, mais ils peuvent être en JSON ou YAML
 # - Les Templates doivent avoir l'extension "xxx.template"
 # Pour plus d'informations, veuillez lire le readme.md
@@ -20,7 +20,7 @@ migration: omnirep            # Exemple: allur | adhpr | omnirep
 mode: dev                     # dev (ne copie pas les fichiers externe) | prod
 
 # Configuration des chemins
-configFolder: config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
+configFolder: mainconfig          # Emplacement du dossier de configuration avec les autres fichiers de configuration
 
 inputFolder: input            # Dossier d'entrée pour les fichiers
 tempFolder: temp              # Dossier temporaire pour les traitement (fichiers fragmentés, fichiers générés avec le template)

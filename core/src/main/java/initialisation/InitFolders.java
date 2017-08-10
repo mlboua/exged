@@ -1,6 +1,6 @@
 package initialisation;
 
-import config.json.mapping.mainConfig.Config;
+import config.json.mapping.mainconfig.MainConfig;
 
 import java.io.File;
 
@@ -9,18 +9,18 @@ public class InitFolders {
     private InitFolders() {
     }
 
-    public static void init(final Config config) {
-        createDirectory(config.getConfigFolder());
-        createDirectory(config.getInputFolder());
-        createDirectory(config.getLogFolder());
-        createDirectory(config.getOutputFolder());
-        createDirectory(config.getSplittedTempFolder());
-        createDirectory(config.getPivotTempFolder());
-        createDirectory(config.getReportsFolder());
-        createDirectory(config.getResumeFolder());
-        createDirectory(config.getTempFolder());
-        createDirectory(config.getTemplateFolder());
-        createDirectory(config.getXmlTempFolder());
+    public static void init(final MainConfig mainConfig) {
+        createDirectory(mainConfig.getConfigFolder());
+        createDirectory(mainConfig.getInputFolder());
+        createDirectory(mainConfig.getLogFolder());
+        createDirectory(mainConfig.getOutputFolder());
+        createDirectory(mainConfig.getSplittedTempFolder());
+        createDirectory(mainConfig.getPivotTempFolder());
+        createDirectory(mainConfig.getReportsFolder());
+        createDirectory(mainConfig.getResumeFolder());
+        createDirectory(mainConfig.getTempFolder());
+        createDirectory(mainConfig.getTemplateFolder());
+        createDirectory(mainConfig.getOutputTempFolder());
     }
 
     private static void createDirectory(final String path) {

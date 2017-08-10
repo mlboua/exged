@@ -1,6 +1,6 @@
 package engine;
 
-import config.json.mapping.mainConfig.Config;
+import config.json.mapping.mainconfig.MainConfig;
 import org.rythmengine.Rythm;
 import org.rythmengine.internal.compiler.TemplateClass;
 import org.rythmengine.resource.StringTemplateResource;
@@ -23,13 +23,13 @@ public class TemplateEngineExecutor {
     private final List<RythmEngineStatus> rythmEngineList;
 
     /**
-     * @param config
+     * @param mainConfig
      */
-    public TemplateEngineExecutor(final Config config) {
+    public TemplateEngineExecutor(final MainConfig mainConfig) {
         Rythm.engine().classes().clear();
 
         templateClass = Rythm.engine().getTemplateClass(new StringTemplateResource(
-                readLineByLine(config.getTemplateFolder() + File.separator + config.getMigration() + ".template")));
+                readLineByLine(mainConfig.getTemplateFolder() + File.separator + mainConfig.getMigration() + ".template")));
         rythmEngineList = new ArrayList<>();
         IntStream.range(0, 20).forEach(key -> rythmEngineList.add(new RythmEngineStatus()));
     }

@@ -1,5 +1,7 @@
 package config.json.mapping.validators;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import config.json.GenericNameWithArguments;
 
 import java.util.List;
@@ -9,7 +11,12 @@ public class Validators {
     private Optional<List<String>> simple = Optional.empty();
     private Optional<List<GenericNameWithArguments>> complex = Optional.empty();
 
-    public Validators() {
+    @JsonCreator
+    public Validators(
+            @JsonProperty("simple") final Optional<List<String>> simple,
+            @JsonProperty("complex") final Optional<List<GenericNameWithArguments>> complex) {
+        this.simple = simple;
+        this.complex = complex;
     }
 
     public Optional<List<String>> getSimple() {

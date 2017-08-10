@@ -1,20 +1,16 @@
 package com.capgemini.exged;
 
-import com.beust.jcommander.JCommander;
+import com.capgemini.exged.config.Config;
+import com.capgemini.exged.exception.ExgedMainException;
+import com.capgemini.exged.initialiser.ConfigInitialiser;
 import com.google.common.io.Files;
-import config.json.mapping.mainConfig.Config;
 import creator.GenericCreator;
 import data.Data;
 import data.Fold;
 import engine.TemplateEngineExecutor;
-import exception.ExgedCoreException;
 import exception.ExgedParserException;
 import identifier.csv.CsvIdentifier;
-import initialisation.Args;
-import initialisation.InitFolders;
 import reader.csv.CsvReader;
-import reader.json.JsonConfigReader;
-import reader.yaml.YamlConfigReader;
 import reports.GenericReportRow;
 import stats.Stats;
 import validator.DetailReject;
@@ -35,42 +31,33 @@ import java.util.stream.Stream;
 
 public class App {
 
-    public static final Stats stats = new Stats();
-    public static Config config;
-    public static long startTime;
-
+    static final Stats stats = new Stats();
+        
     public static void main(String... args) {
         try {
-            // Initialisation du programme
-            initialisation(args);
+            // Chargement en mémoire des fichiers de configuration json/yaml
+            ConfigInitialiser.initConfig(args);
+            // Préparation du lecteur de fichier CSV
+            final CsvReader reader = new CsvReader(true,
+                    Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()));
+            // Moteur de template
+            final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(Config.getMainConfig());
+            // Stream de Rejects
+            Stream.Builder<GenericReportRow> rejectStream = Stream.builder();
 
-            // Lecture des fichiers de configuration
-            final List<CsvIdentifier> identifierList = JsonConfigReader.readJsonIdentifier(new File("config/foldDetection.json")).stream().map(CsvIdentifier::new).collect(Collectors.toList());
-            final GenericValidator genericValidator = new GenericValidator(JsonConfigReader.readJsonMappingHeaders(new File("config/mappingHeaders.json")),
-                    JsonConfigReader.readJsonMappingReject(new File("config/mappingReject.json")));
-            final GenericCreator genericCreator = new GenericCreator(JsonConfigReader.readJsonMappingCreator(new File("config/mappingCreator.json")));
-
-            // Préparation lecteur de fichier CSV
-            CsvReader reader = new CsvReader(true, identifierList);
+            final GenericValidator genericValidator = new GenericValidator(Config.getValidators(), Config.getRejects());
+            final GenericCreator genericCreator = new GenericCreator(Config.getCreators());
 
             // Ajout des stats d'entrée
-            stats.addNumberDocumentEntry(reader.countRowsFolder(new File(config.getSplittedTempFolder())).intValue());
-            stats.addNumberFilesEntry((int) java.nio.file.Files.list(Paths.get(config.getSplittedTempFolder())).count() - 1);
+            stats.addNumberDocumentEntry(reader.countRowsFolder(new File(Config.getMainConfig().getSplittedTempFolder())).intValue());
+            stats.addNumberFilesEntry((int) java.nio.file.Files.list(Paths.get(Config.getMainConfig().getSplittedTempFolder())).count() - 1);
 
-            // Préparation du traitement
-            // Moteur de template
-            final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(config);
-            // Stream de Rejects
-            Stream.Builder<GenericReportRow> detailRejectStream = Stream.builder();
-
-            // Lancement du stats dans la console
-            Timer timer = new Timer(true);
+            // Lancement des stats dans la console
+            final Timer timer = new Timer(true);
             timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 1000);
 
-            // System.out.println(reader.readFolderParallel(new File(config.getSplittedTempFolder())).flatMap(Data::foldStream).count());         // Read lines to -> List<List<String>
-
             //Traitement
-            final List<Fold> foldList = reader.readFolderParallel(new File(config.getSplittedTempFolder()))         // Read lines to -> List<List<String>>
+            final List<Fold> foldList = reader.readFolderParallel(new File(Config.getMainConfig().getSplittedTempFolder()))         // Read lines to -> List<List<String>>
                     .flatMap(Data::foldStream)                                          // FilesRows -> Rows -> Folds
                     .filter(fold -> {                                                   // Validation
                         stats.addNumberPliEntry(1);
@@ -80,9 +67,9 @@ public class App {
                             stats.addNumberDocumentNotValid(fold.getData().size());
                             rejects.get().forEach(reject -> {
                                 if (reject.getValues().isPresent()) {
-                                    detailRejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail() + ": " + reject.getValues().get(), fold));
+                                    rejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail() + ": " + reject.getValues().get(), fold));
                                 } else {
-                                    detailRejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail(), fold));
+                                    rejectStream.add(new GenericReportRow(reject.getCode(), reject.getDetail(), fold));
                                 }
                             });
                             return false;
@@ -94,11 +81,11 @@ public class App {
                     .peek(fold -> {
                         Map<String, Object> params = new HashMap<>();
                         params.put("pli", fold.getData());
-                        params.put("headers", fold.getHeader());
+                        params.put("validations", fold.getHeader());
                         final Optional<String> render = templateEngineExecutor.render(params);
                         if (render.isPresent()) {
                             try {
-                                File xmlFile = new File(config.getXmlTempFolder() + File.separator
+                                File xmlFile = new File(Config.getMainConfig().getOutputTempFolder() + File.separator
                                         + detectDate(fold.getData().get(0).get(fold.getHeader().get("DB_DATE_NUM"))) + File.separator
                                         + fold.getId() + ".xml");
                                 Files.createParentDirs(xmlFile);
@@ -123,7 +110,7 @@ public class App {
             System.out.println("Création des fichiers de rapports");
 
             String[] headers = {"DOCIDX", "DOCIDXGED", "DB_NUMPLI", "FILENAMED", "ID_PLI", "CODE_REJET", "DETAIL_REJET"};
-            final List<GenericReportRow> genericReportRowList = detailRejectStream.build().collect(Collectors.toList());
+            final List<GenericReportRow> genericReportRowList = rejectStream.build().collect(Collectors.toList());
             final List<String[]> rejectList = genericReportRowList.stream()
                     .map(reject -> {
                         final List<String> rejectListTemp = new ArrayList<>();
@@ -143,7 +130,7 @@ public class App {
             CsvWrite.writeCsvFile(new File("report.csv"), headers, rejectList);
 
             System.out.println(stats);
-        } catch (ExgedParserException | IOException | ExgedCoreException e) {
+        } catch (ExgedParserException | IOException | ExgedMainException e) {
             e.printStackTrace();
         }
     }
@@ -156,37 +143,10 @@ public class App {
         return date.substring(0, 4) + "_" + date.substring(4, 6);
     }
 
-    private static void initialisation(String... args) throws IOException, ExgedCoreException {
-        // Lectures des arguments passer en paramètre
-        final Args arguments = new Args();
-        JCommander.newBuilder().addObject(arguments).build().parse(args);
-        // Chargement du fichier de configuration en fonctions des
-        // paramètres d'entrées
-        final File configFile = new File(arguments.getConfigPath() != null
-                ? arguments.getConfigPath()
-                : "config.yaml");
-
-        // Vérification de l'existance du fichier de configuration
-        if (!configFile.exists()) {
-            throw new ExgedCoreException("Fichier de configuration introuvable, veuillez le renseigner en argument avec \"-c\"");
-        }
-        // Lecture du fichier de configuration
-        config = YamlConfigReader.readYamlConfig(configFile);
-        config.init();
-        InitFolders.init(config);
-    }
-
     private static class MyTimerTask extends TimerTask {
 
         @Override
         public void run() {
-            try {
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             long eta = stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get() == 0 ? 0 :
                     ((int) stats.getNumberDocumentEntry().get() - ((int) stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get())) * Duration.between(stats.getInstantStart(), Instant.now()).toMillis() / ((int) stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get());
 
@@ -195,10 +155,9 @@ public class App {
                             TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
                             TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
 
-            StringBuilder string = new StringBuilder(140);
+            StringBuilder consoleMsg = new StringBuilder(140);
             int percent = (int) ((stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get()) * 100 / stats.getNumberDocumentEntry().get());
-            string
-                    .append('\r')
+            consoleMsg.append('\r')
                     .append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
                     .append(String.format(" %d%% [", percent))
                     .append(String.join("", Collections.nCopies(percent, "=")))
@@ -211,7 +170,7 @@ public class App {
                             (stats.getNumberDocumentExit().get() + stats.getNumberDocumentNotValid().get()), stats.getNumberDocumentEntry().get(), etaHms,
                             (int) stats.getNumberFileTreatedPerSeconds(), (int) (Runtime.getRuntime().totalMemory() / 1048576.0),
                             (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
-            System.out.print(string);
+            System.out.print(consoleMsg);
         }
     }
 }

@@ -1,7 +1,7 @@
 package validator;
 
-import config.json.mapping.headers.MappingHeaders;
-import config.json.mapping.reject.MappingReject;
+import config.json.mapping.reject.RejectConfig;
+import config.json.mapping.validations.ValidatorsConfig;
 import data.Fold;
 import exception.ExgedValidatorException;
 import org.reflections.Reflections;
@@ -32,13 +32,13 @@ public class GenericValidator implements Validator {
 
     private final Map<String, List<String>> simpleValidatorsToHeadersMap;
     private final Map<String, List<ComplexValidator>> complexValidatorsToHeadersMap;
-    Map<String, MappingReject> validatorToReject;
+    Map<String, RejectConfig> validatorToReject;
     Map<String, String> detailRejectMap;
 
-    public GenericValidator(MappingHeaders mappingHeaders, List<MappingReject> mappingReject) {
+    public GenericValidator(ValidatorsConfig validatorsConfig, List<RejectConfig> rejectConfig) {
         simpleValidatorsToHeadersMap = simpleConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
         complexValidatorsToHeadersMap = complexConditions.keySet().stream().collect(Collectors.toMap(validatorName -> validatorName, validatorName -> new ArrayList<>()));
-        mappingHeaders.getUniqueHeader().forEach(uniqueHeader -> {
+        validatorsConfig.getUnique().forEach(uniqueHeader -> {
             if (uniqueHeader.getValidators().isPresent() && uniqueHeader.getValidators().get().getSimple().isPresent()) {
                 uniqueHeader.getValidators().get().getSimple().get().forEach(validator -> {
                     if (simpleValidatorsToHeadersMap.containsKey(validator)) {
@@ -57,7 +57,7 @@ public class GenericValidator implements Validator {
         simpleValidatorsToHeadersMap.values().removeIf(List::isEmpty);
         complexValidatorsToHeadersMap.values().removeIf(List::isEmpty);
         validatorToReject = new HashMap<>();
-        simpleValidatorsToHeadersMap.forEach((name, validator) -> mappingReject.forEach(mapReject -> {
+        simpleValidatorsToHeadersMap.forEach((name, validator) -> rejectConfig.forEach(mapReject -> {
             if (mapReject.getValidators().getSimple().isPresent()) {
                 mapReject.getValidators().getSimple().get().stream()
                         .filter(validatorName -> validatorName.equals(name))
@@ -65,7 +65,7 @@ public class GenericValidator implements Validator {
                         .ifPresent(validatorFind -> validatorToReject.put(validatorFind, mapReject));
             }
         }));
-        complexValidatorsToHeadersMap.forEach((name, validator) -> mappingReject.forEach(mapReject -> {
+        complexValidatorsToHeadersMap.forEach((name, validator) -> rejectConfig.forEach(mapReject -> {
             if (mapReject.getValidators().getComplex().isPresent()) {
                 mapReject.getValidators().getComplex().get().stream()
                         .filter(validatorName -> validatorName.getName().equals(name))
@@ -75,7 +75,7 @@ public class GenericValidator implements Validator {
                         });
             }
         }));
-        mappingReject.forEach(mappingReject1 -> mappingReject1.setValidators(null));
+        rejectConfig.forEach(rejectConfig1 -> rejectConfig1.setValidators(null));
     }
 
     private static String getValidatorName(Class<?> simpleValidator) {
@@ -116,8 +116,8 @@ public class GenericValidator implements Validator {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(reject -> {
-                    final Optional<MappingReject> firstReject = validatorToReject.values().stream().filter(rejectMap -> rejectMap.getCode().equals(reject.getCode())).findFirst();
-                    return firstReject.map(mappingReject -> new DetailReject(reject.getCode(), reject.getValues().get(), mappingReject.getDetail(), fold)).orElse(null);
+                    final Optional<RejectConfig> firstReject = validatorToReject.values().stream().filter(rejectMap -> rejectMap.getCode().equals(reject.getCode())).findFirst();
+                    return firstReject.map(rejectConfig -> new DetailReject(reject.getCode(), reject.getValues().get(), rejectConfig.getDetail(), fold)).orElse(null);
                 })
                 .collect(Collectors.toList());
         if (simpleReject.isEmpty()) {

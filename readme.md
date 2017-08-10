@@ -13,7 +13,7 @@ Principal:
 - Module delivery (0.5)
 - Finir de refaire les configurations (1)
 - debug la barre de progression durant le traitement (0.25)
-- Améliorer le parser des fichiers de config pour lire les JSON/YAML avec une seule classe
+- Améliorer le parser des fichiers de mainConfig pour lire les JSON/YAML avec une seule classe
 
 Secondaire:
 - Changer le parser csv pour en utiliser un avec des Stream, ce qui permettra d'éviter de remplir la ram pour la vider ensuite à chaque fichier. (0.5)
@@ -25,10 +25,11 @@ A voir:
 - Refaire le code en Kotlin pour faire marcher l'application sur toutes les machines avec Java 6 d'installé. (Conversion du code automotisé grâce à IntelliJ) (3)
 
 ## Fonctionnement
+
 ```flow
 st=>start: Debut
 e=>end: Fin
-readConfig=>operation: Lecture config
+readConfig=>operation: Lecture mainConfig
 readIntputFolder=>operation: Lecture du dossier d'input
 rowToFold=>operation: Detection des plis
 valid=>operation: Validation des plis
@@ -48,7 +49,7 @@ validFold(no)->rejectBuild->reportCreator->e
 
 ## Configuration
 
-Exged possède un fichier de configuration principal qui peut être renseigner avec l'argument **-c**, par défaut l'emplacement du fichier de config est le même que celui du jar.
+Exged possède un fichier de configuration principal qui peut être renseigner avec l'argument **-c**, par défaut l'emplacement du fichier de mainConfig est le même que celui du jar.
 
 Les fichiers de configurations dans le dossier de configuration peuvent être en JSON ou YAML.
 
@@ -104,14 +105,14 @@ Pour chaque pli, l'application va tester le pli si il correspond aux attentes de
 
 Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
 - **global**, ce qui correspond à tout les test qui ont besoins de plusieurs en-têtes afin de réaliser le test.
-- **uniqueHeader**, tout les tests qui ont besoin d'une seule en-tête
+- **unique**, tout les tests qui ont besoin d'une seule en-tête
 
 #### global
 Le tableau **global** contient une liste d'entrée permettant de réaliser des validations sur une seule en-tête à la fois, ces tests sont réalisés dans l'ordre définit dans le fichier.
 
-#### uniqueHeader
+#### unique
 
-Le tableau **uniqueHeader** contient une liste d'entrée permettant de réaliser des validations sur une seule en-tête à la fois, ces tests ne sont pas réalisés dans l'ordre définit dans le fichier.
+Le tableau **unique** contient une liste d'entrée permettant de réaliser des validations sur une seule en-tête à la fois, ces tests ne sont pas réalisés dans l'ordre définit dans le fichier.
 
 Comme on peut le voir dans les exemples, il y a 2 champs principaux à remplir, qui sont:
 - **name**: ceci correspond au nom du champ dans le fichier d'entrée, ce nom sera utilisé pour la recherche dans le pli
@@ -140,7 +141,7 @@ Validateurs prévu dans le futur:
 **json:**
 ```json
 {
-  "uniqueHeader": [
+  "unique": [
     {
       "name": "SERVICE",
       "validators": {
@@ -171,7 +172,7 @@ Validateurs prévu dans le futur:
 **yaml:**
 ```yaml
 ---
-uniqueHeader:
+unique:
 - name: SERVICE
   validators:
     simple:
@@ -193,8 +194,8 @@ uniqueHeader:
 **json:**
 ```json
 {
-  "multiHeaders": [],
-  "uniqueHeader": [
+  "global": [],
+  "unique": [
     {
       "name": "SERVICE",
       "validators": {
@@ -257,8 +258,8 @@ uniqueHeader:
 **yaml:**
 ```yaml
 ---
-multiHeaders: []
-uniqueHeader:
+global: []
+unique:
 - name: SERVICE
   validators:
     simple:
@@ -552,7 +553,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
       "TYPE_PIECE_COL"
     ],
     "arguments": [
-      "config/configMetier.csv",
+      "mainConfig/configMetier.csv",
       ",",
       "0"
     ]
@@ -564,7 +565,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
       "TYPE_PIECE_COL"
     ],
     "arguments": [
-      "config/configMetier.csv",
+      "mainConfig/configMetier.csv",
       ",",
       "1"
     ]
@@ -641,7 +642,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
   headers:
   - TYPE_PIECE_COL
   arguments:
-  - config/configMetier.csv
+  - mainConfig/configMetier.csv
   - ","
   - '0'
 - name: SOUS_TYPE_PIECE
@@ -649,7 +650,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
   headers:
   - TYPE_PIECE_COL
   arguments:
-  - config/configMetier.csv
+  - mainConfig/configMetier.csv
   - ","
   - '1'
 ```
@@ -790,7 +791,7 @@ Contacter Charles Delorme à l'adresse email: charlesdelormefr@gmail.com
 
 Télécharger la version préparé d'eclipse avec les plugins et configuration pour le projet.
 
-**LIEN**
+**Demander par mail à charles.delorme@capgemini.com (temporaire)**
 
 #### Installation du projet
 

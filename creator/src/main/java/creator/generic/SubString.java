@@ -1,6 +1,6 @@
 package creator.generic;
 
-import config.json.mapping.creator.MappingCreator;
+import config.json.mapping.creators.CreatorConfig;
 import creator.Creator;
 import creator.CreatorAnnotation;
 import data.Fold;
@@ -8,20 +8,20 @@ import data.Fold;
 @CreatorAnnotation(name = "subString")
 public class SubString implements Creator {
     @Override
-    public void createValue(Fold fold, MappingCreator mappingCreator) {
-        if (fold.getHeader().get(mappingCreator.getHeaders().get(0)) != null) {
+    public void createValue(Fold fold, CreatorConfig creatorConfig) {
+        if (fold.getHeader().get(creatorConfig.getHeaders().get(0)) != null) {
             fold.getData().forEach(row -> {
-                if (!"".equals(row.get(fold.getHeader().get(mappingCreator.getHeaders().get(0))))) {
+                if (!"".equals(row.get(fold.getHeader().get(creatorConfig.getHeaders().get(0))))) {
                     row.add(
-                            row.get(fold.getHeader().get(mappingCreator.getHeaders().get(0)))
+                            row.get(fold.getHeader().get(creatorConfig.getHeaders().get(0)))
                                     .substring(
-                                            toInt(mappingCreator.getArguments().get(0)),
-                                            toInt(mappingCreator.getArguments().get(1))
+                                            toInt(creatorConfig.getArguments().get(0)),
+                                            toInt(creatorConfig.getArguments().get(1))
                                     )
                     );
                 }
             });
-            fold.getHeader().put(mappingCreator.getName(), fold.getData().get(0).size() - 1);
+            fold.getHeader().put(creatorConfig.getName(), fold.getData().get(0).size() - 1);
         }
     }
 

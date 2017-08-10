@@ -1,6 +1,6 @@
 {
-  "multiHeaders": [],
-  "uniqueHeader": [
+  "global": [],
+  "unique": [
     {
       "name": "SERVICE",
       "validators": {

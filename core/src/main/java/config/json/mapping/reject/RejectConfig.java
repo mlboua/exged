@@ -2,16 +2,13 @@ package config.json.mapping.reject;
 
 import config.json.mapping.validators.Validators;
 
-public class MappingReject {
+public class RejectConfig {
 
-    private String code;
-    private String detail;
-    private Validators validators;
+    private final String code;
+    private final String detail;
+    private final Validators validators;
 
-    public MappingReject() {
-    }
-
-    public MappingReject(String code, String detail, Validators validators) {
+    public RejectConfig(String code, String detail, Validators validators) {
         this.code = code;
         this.detail = detail;
         this.validators = validators;
@@ -21,29 +18,17 @@ public class MappingReject {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getDetail() {
         return detail;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
     }
 
     public Validators getValidators() {
         return validators;
     }
 
-    public void setValidators(Validators validators) {
-        this.validators = validators;
-    }
-
     @Override
     public String toString() {
-        return "MappingReject{" +
+        return "RejectConfig{" +
                 "code='" + code + '\'' +
                 ", detail='" + detail + '\'' +
                 ", validators=" + validators +

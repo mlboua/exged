@@ -1,29 +1,27 @@
 package config.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Optional;
 
 public class GenericNameWithArguments {
-    private String name;
+    private final String name;
     private Optional<List<String>> arguments;
 
-    public GenericNameWithArguments() {
+    public GenericNameWithArguments(
+            @JsonProperty("name") final String name,
+            @JsonProperty("arguments") final Optional<List<String>> arguments) {
+        this.name = name;
+        this.arguments = arguments;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Optional<List<String>> getArguments() {
         return arguments;
-    }
-
-    public void setArguments(Optional<List<String>> arguments) {
-        this.arguments = arguments;
     }
 
     @Override

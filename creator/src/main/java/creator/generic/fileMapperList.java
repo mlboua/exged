@@ -1,6 +1,6 @@
 package creator.generic;
 
-import config.json.mapping.creator.MappingCreator;
+import config.json.mapping.creators.CreatorConfig;
 import creator.Creator;
 import creator.CreatorAnnotation;
 import data.Fold;
@@ -19,45 +19,45 @@ public class fileMapperList implements Creator {
         mapperFile = new HashMap<>();
     }
 
-    private static boolean fileNotGenerated(MappingCreator mappingCreator) {
-        return !mapperFile.containsKey(mappingCreator.getArguments().get(0));
+    private static boolean fileNotGenerated(CreatorConfig creatorConfig) {
+        return !mapperFile.containsKey(creatorConfig.getArguments().get(0));
     }
 
-    private static void generateMap(MappingCreator mappingCreator) {
+    private static void generateMap(CreatorConfig creatorConfig) {
         try {
             Map<String, List<String>> converter = new HashMap<>();
-            Files.lines(Paths.get(mappingCreator.getArguments().get(0)))
-                    .map(line -> line.split(mappingCreator.getArguments().get(1)))
+            Files.lines(Paths.get(creatorConfig.getArguments().get(0)))
+                    .map(line -> line.split(creatorConfig.getArguments().get(1)))
                     .forEach(line -> {
                         List<String> values = new ArrayList<>(Arrays.asList(line));
                         values.remove(0);
                         converter.put(line[0], values);
                     });
-            mapperFile.put(mappingCreator.getArguments().get(0), converter);
+            mapperFile.put(creatorConfig.getArguments().get(0), converter);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void init(List<MappingCreator> mappingCreator) {
-        mappingCreator.stream()
+    public static void init(List<CreatorConfig> creatorConfig) {
+        creatorConfig.stream()
                 .filter(fileMapperList::fileNotGenerated)
                 .forEach(fileMapperList::generateMap);
     }
 
     @Override
-    public void createValue(Fold fold, MappingCreator mappingCreator) {
-        if (!mapperFile.containsKey(mappingCreator.getArguments().get(0))) {
-            init(Arrays.asList(mappingCreator));
+    public void createValue(Fold fold, CreatorConfig creatorConfig) {
+        if (!mapperFile.containsKey(creatorConfig.getArguments().get(0))) {
+            init(Arrays.asList(creatorConfig));
         }
-        String valueToAdd = mapperFile.get(mappingCreator.getArguments().get(0))                    // Map du fichier
+        String valueToAdd = mapperFile.get(creatorConfig.getArguments().get(0))                    // Map du fichier
                 .get(fold.getData().get(0)                          // Get de la valeur dans le pli à l'index du header
                         .get(fold.getHeader().get(
-                                mappingCreator.getHeaders().get(0))
+                                creatorConfig.getHeaders().get(0))
                         )
                 )
-                .get(Integer.parseInt(mappingCreator.getArguments().get(2)));   // Get de la valeur demandé dans le resultat de la map
+                .get(Integer.parseInt(creatorConfig.getArguments().get(2)));   // Get de la valeur demandé dans le resultat de la map
         fold.getData().forEach(row -> row.add(valueToAdd));
-        fold.getHeader().put(mappingCreator.getName(), fold.getData().get(0).indexOf(valueToAdd));
+        fold.getHeader().put(creatorConfig.getName(), fold.getData().get(0).indexOf(valueToAdd));
     }
 }

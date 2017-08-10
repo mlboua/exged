@@ -4,15 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import config.json.mapping.creator.MappingCreator;
-import config.json.mapping.headers.MappingHeaders;
-import config.json.mapping.reject.MappingReject;
-import exception.ExgedParserException;
-import identifier.Identifier;
+import config.json.mapping.creators.CreatorConfig;
+import config.json.mapping.reject.RejectConfig;
+import config.json.mapping.validations.ValidatorsConfig;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class JsonConfigReader {
 
@@ -29,38 +28,15 @@ public class JsonConfigReader {
     private JsonConfigReader() {
     }
 
-    public static List<Identifier> readJsonIdentifier(File file) throws IOException, ExgedParserException {
-        List<Identifier> identifierUnorderedList = new ArrayList<>(Arrays.asList(mapper.readValue(file, Identifier[].class)));
-        if (identifierUnorderedList.stream().filter(identifier -> !identifier.getReplacedBy().isPresent()).count() > 1) {
-            throw new ExgedParserException("Plusieurs identifiants n'ont pas de valeur de remplacement, il faut qu'un seul identifiant qui ne soit pas remplacé");
-        }
-        List<Identifier> reversedList = new ArrayList<>();
-        Optional<Identifier> lastIdentifier = identifierUnorderedList.stream().filter(identifier -> !identifier.getReplacedBy().isPresent()).findFirst();
-        if (lastIdentifier.isPresent()) {
-            reversedList.add(lastIdentifier.get());
-            identifierUnorderedList.forEach(identifier -> identifierUnorderedList.stream()
-                    .filter(identifierSearch ->
-                            identifierSearch.getReplacedBy().isPresent()
-                                    && reversedList.get(reversedList.size()-1).getName().equals(identifierSearch.getReplacedBy().get()))
-                    .findFirst()
-                    .ifPresent(reversedList::add)
-            );
-        } else {
-            throw new ExgedParserException("Aucun identifiant sans remplacant trouvé, il faut un identifiant sans remplaçant");
-        }
-        Collections.reverse(reversedList);
-        return reversedList;
+    public static ValidatorsConfig readJsonMappingHeaders(File file) throws IOException {
+        return mapper.readValue(file, ValidatorsConfig.class);
     }
 
-    public static MappingHeaders readJsonMappingHeaders(File file) throws IOException {
-        return mapper.readValue(file, MappingHeaders.class);
+    public static List<RejectConfig> readJsonMappingReject(File file) throws IOException {
+        return Arrays.asList(mapper.readValue(file, RejectConfig[].class));
     }
 
-    public static List<MappingReject> readJsonMappingReject(File file) throws IOException {
-        return Arrays.asList(mapper.readValue(file, MappingReject[].class));
-    }
-
-    public static List<MappingCreator> readJsonMappingCreator(File file) throws IOException {
-        return Arrays.asList(mapper.readValue(file, MappingCreator[].class));
+    public static List<CreatorConfig> readJsonMappingCreator(File file) throws IOException {
+        return Arrays.asList(mapper.readValue(file, CreatorConfig[].class));
     }
 }

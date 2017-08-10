@@ -1,6 +1,6 @@
 package creator.generic;
 
-import config.json.mapping.creator.MappingCreator;
+import config.json.mapping.creators.CreatorConfig;
 import creator.Creator;
 import creator.CreatorAnnotation;
 import data.Fold;
@@ -11,10 +11,10 @@ import java.util.StringJoiner;
 public class Concat implements Creator {
 
     @Override
-    public void createValue(Fold fold, MappingCreator mappingCreator) {
+    public void createValue(Fold fold, CreatorConfig creatorConfig) {
         fold.getData().forEach(row -> {
-            StringJoiner stringJoiner = new StringJoiner(mappingCreator.getArguments().get(0));
-            mappingCreator.getHeaders().forEach(header -> {
+            StringJoiner stringJoiner = new StringJoiner(creatorConfig.getArguments().get(0));
+            creatorConfig.getHeaders().forEach(header -> {
                 if (fold.getHeader().containsKey(header)) {
                     stringJoiner.add(row.get(fold.getHeader().get(header)));
                 } else {
@@ -23,6 +23,6 @@ public class Concat implements Creator {
             });
             row.add(stringJoiner.toString());
         });
-        fold.getHeader().put(mappingCreator.getName(), fold.getData().get(0).size() - 1);
+        fold.getHeader().put(creatorConfig.getName(), fold.getData().get(0).size() - 1);
     }
 }

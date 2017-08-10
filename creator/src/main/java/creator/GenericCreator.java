@@ -1,6 +1,6 @@
 package creator;
 
-import config.json.mapping.creator.MappingCreator;
+import config.json.mapping.creators.CreatorConfig;
 import data.Fold;
 import org.reflections.Reflections;
 
@@ -21,10 +21,10 @@ public class GenericCreator {
 
     }
 
-    private final List<MappingCreator> mappingCreatorList;
+    private final List<CreatorConfig> creatorConfigList;
 
-    public GenericCreator(List<MappingCreator> mappingCreatorList) {
-        this.mappingCreatorList = mappingCreatorList;
+    public GenericCreator(List<CreatorConfig> creatorConfigList) {
+        this.creatorConfigList = creatorConfigList;
     }
 
     private static String getCreatorName(Class<?> creator) {
@@ -41,7 +41,7 @@ public class GenericCreator {
     }
 
     public Fold createFields(Fold fold, Map<String, Integer> headers) {
-        mappingCreatorList.forEach(mappingCreator -> {
+        creatorConfigList.forEach(mappingCreator -> {
             if (creatorMap.containsKey(mappingCreator.getCreator())) {
                 creatorMap.get(mappingCreator.getCreator()).createValue(fold, mappingCreator);
             } else {
