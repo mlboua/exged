@@ -21,7 +21,7 @@ public class NotEgalTo implements ComplexValidationCondition {
                 .map(row -> complexValidatorList.stream()
                         .filter(complexValidator -> complexValidator.getArguments() // Optionnel vérifié au début de la fonction
                                 .stream()
-                                .noneMatch(value -> {
+                                .anyMatch(value -> {
                                     if (headers.get(complexValidator.getName()) == null ||
                                             row.get(headers.get(complexValidator.getName())) == null ||
                                             "".equals(row.get(headers.get(complexValidator.getName())))) {

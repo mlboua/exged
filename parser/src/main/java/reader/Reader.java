@@ -10,13 +10,13 @@ import java.util.stream.Stream;
 
 public interface Reader {
 
-    public Data readFile(File file);
+    Data readFile(File file);
 
-    public Stream<Data> readFiles(List<File> files);
+    Stream<Data> readFiles(List<File> files);
 
-    public Stream<Data> readFilesParallel(List<File> files);
+    Stream<Data> readFilesParallel(List<File> files);
 
-    public Stream<Data> readFolder(File directory) throws ExgedParserException;
+    Stream<Data> readFolder(File directory) throws ExgedParserException;
 
-    public Stream<Data> readFolderParallel(File directory) throws IOException, ExgedParserException;
+    Stream<Data> readFolderParallel(File directory) throws IOException, ExgedParserException;
 }

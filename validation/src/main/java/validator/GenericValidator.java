@@ -1,7 +1,7 @@
 package validator;
 
-import config.json.mapping.reject.RejectConfig;
-import config.json.mapping.validations.ValidatorsConfig;
+import config.mapping.reject.RejectConfig;
+import config.mapping.validations.ValidatorsConfig;
 import data.Fold;
 import exception.ExgedValidatorException;
 import org.reflections.Reflections;
@@ -75,7 +75,6 @@ public class GenericValidator implements Validator {
                         });
             }
         }));
-        rejectConfig.forEach(rejectConfig1 -> rejectConfig1.setValidators(null));
     }
 
     private static String getValidatorName(Class<?> simpleValidator) {

@@ -5,12 +5,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import config.json.mapping.creators.CreatorConfig;
-import config.json.mapping.delivery.DeliveryConfig;
-import config.json.mapping.mainconfig.MainConfig;
-import config.json.mapping.reject.RejectConfig;
-import config.json.mapping.reports.ReportsConfig;
-import config.json.mapping.validations.ValidatorsConfig;
+import config.mapping.creators.CreatorConfig;
+import config.mapping.delivery.DeliveryConfig;
+import config.mapping.mainconfig.MainConfig;
+import config.mapping.reject.RejectConfig;
+import config.mapping.reports.ReportsConfig;
+import config.mapping.validations.ValidatorsConfig;
 import exception.ExgedParserException;
 import identifier.Identifier;
 
@@ -43,21 +43,24 @@ public class ConfigReader {
 
     private static Optional<File> getConfigFile(String configFile) {
         return objectMapperMap.keySet().stream()
-                .filter(extension -> Paths.get(configFile + "." + extension).toFile().exists())
-                .map(extension -> new File(configFile + "." + extension))
-                .findFirst();
+                .filter(extension ->
+                        Paths.get(Config.getMainConfig().getConfigFolder() + File.separator + configFile + "." + extension).toFile().exists()
+                )
+                .findFirst()
+                .map(extension -> new File(Config.getMainConfig().getConfigFolder() + File.separator + configFile + "." + extension));
+
     }
 
     public static MainConfig readMainConfig(File file) throws ExgedParserException {
         try {
-            return objectMapperMap.get(file.getName().split(".")[1]).readValue(file, MainConfig.class);
+            return objectMapperMap.get(getFileExtension(file)).readValue(file, MainConfig.class);
         } catch (IOException e) {
             throw new ExgedParserException("Impossible de charger le fichier de configuration principal: " + e);
         }
     }
 
     private static String getFileExtension(File file) {
-        return file.getName().split(".")[1];
+        return file.getName().split("\\.")[1];
     }
 
     public static List<CreatorConfig> readCreatorsConfig() throws ExgedParserException {

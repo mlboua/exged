@@ -5,5 +5,5 @@ import java.util.Optional;
 
 @FunctionalInterface
 public interface CsvIdentifierValidationCondition {
-    public Optional<CsvIdentifier> validate(final List<CsvIdentifier> identifiers, List<String> data);
+    Optional<CsvIdentifier> validate(final List<CsvIdentifier> identifiers, List<String> data);
 }

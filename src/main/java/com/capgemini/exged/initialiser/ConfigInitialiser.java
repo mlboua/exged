@@ -1,8 +1,8 @@
 package com.capgemini.exged.initialiser;
 
 import com.beust.jcommander.JCommander;
-import com.capgemini.exged.config.Config;
 import com.capgemini.exged.exception.ExgedMainException;
+import config.Config;
 import exception.ExgedParserException;
 import initialisation.Args;
 import initialisation.InitFolders;
@@ -14,8 +14,8 @@ import java.util.Optional;
 
 public class ConfigInitialiser {
 
-    private static final List<String> defaultPathConfig = Arrays.asList("mainconfig.yaml", "config/mainconfig.yaml", "mainconfig.json",
-            "mainconfig.yaml", "conf.yaml", "conf.json", "config/conf.yaml", "config/conf.json");
+    private static final List<String> defaultPathConfig = Arrays.asList("config.yaml", "config.json",
+            "config/config.yaml", "config/config.json");
 
     private ConfigInitialiser() {
     }

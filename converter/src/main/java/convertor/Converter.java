@@ -1,6 +1,6 @@
 package convertor;
 
-import config.json.GenericNameWithArguments;
+import config.GenericNameWithArguments;
 import data.Fold;
 
 @FunctionalInterface

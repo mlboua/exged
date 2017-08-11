@@ -1,6 +1,6 @@
 package initialisation;
 
-import config.json.mapping.mainconfig.MainConfig;
+import config.mapping.mainconfig.MainConfig;
 
 import java.io.File;
 
@@ -15,7 +15,6 @@ public class InitFolders {
         createDirectory(mainConfig.getLogFolder());
         createDirectory(mainConfig.getOutputFolder());
         createDirectory(mainConfig.getSplittedTempFolder());
-        createDirectory(mainConfig.getPivotTempFolder());
         createDirectory(mainConfig.getReportsFolder());
         createDirectory(mainConfig.getResumeFolder());
         createDirectory(mainConfig.getTempFolder());

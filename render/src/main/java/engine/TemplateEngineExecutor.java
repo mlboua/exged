@@ -1,6 +1,6 @@
 package engine;
 
-import config.json.mapping.mainconfig.MainConfig;
+import config.mapping.mainconfig.MainConfig;
 import org.rythmengine.Rythm;
 import org.rythmengine.internal.compiler.TemplateClass;
 import org.rythmengine.resource.StringTemplateResource;

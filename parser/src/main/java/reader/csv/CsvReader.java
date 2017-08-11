@@ -8,11 +8,13 @@ import data.csv.CsvData;
 import exception.ExgedParserException;
 import identifier.csv.CsvIdentifier;
 import identifier.csv.CsvIdentifierValidation;
+import org.pmw.tinylog.Logger;
 import reader.Reader;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -48,13 +50,17 @@ public class CsvReader implements Reader {
 
     private Map<String, Integer> getHeaders(String[] headers) {
         final Map<String, Integer> headersMap = new LinkedHashMap<>();
-        IntStream.range(0, headers.length).forEach(
-                key -> headersMap.put(headers[key], key));
+        IntStream.range(0, headers.length).forEach(key -> headersMap.put(headers[key], key));
         return headersMap;
     }
 
-    public Long countRows(File file) throws IOException {
-        return Files.lines(file.toPath()).count() - 1;
+    private Long countRows(File file) {
+        try {
+            return Files.lines(file.toPath()).count() - 1;
+        } catch (IOException e) {
+            Logger.error("Impossible de lire le fichier: " + e);
+        }
+        return 0L;
     }
 
     public String[] getHeader(File file, String seperator) throws IOException {
@@ -68,14 +74,8 @@ public class CsvReader implements Reader {
         return Files.list(directory.toPath())
                 .filter(path -> path.toString().endsWith(".csv"))
                 .parallel()
-                .mapToLong(path -> {
-                    try {
-                        return countRows(path.toFile());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return 0;
-                }).sum();
+                .map(Path::toFile)
+                .mapToLong(this::countRows).sum();
     }
 
     public List<File> splitFile(File file, File outputFolder, int numberForEachFile, List<CsvIdentifier> identifiers) throws ExgedParserException {
@@ -103,14 +103,12 @@ public class CsvReader implements Reader {
                         } else if (!idFold.equals(strings[indexId])) {
                             File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + files.size() + ".csv");
                             writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
-                            System.out.println("New file created " + fileSplit.getName());
                             files.add(fileSplit);
                             rows.clear();
-                            System.gc();
                         }
                         rows.add(strings);
                     } else {
-                        throw new ExgedParserException("Impossible de trouvé l'ID pour la ligne (" + strings + ")");
+                        throw new ExgedParserException("Impossible de trouvé l'ID pour la ligne (" + Arrays.toString(strings) + ")");
                     }
                 } else {
                     rows.add(strings);
@@ -143,12 +141,12 @@ public class CsvReader implements Reader {
 
     @Override
     public Stream<Data> readFiles(List<File> files) {
-        return files.stream().map(file -> readFile(file));
+        return files.stream().map(this::readFile);
     }
 
     @Override
     public Stream<Data> readFilesParallel(List<File> files) {
-        return files.parallelStream().map(file -> readFile(file));
+        return files.parallelStream().map(this::readFile);
     }
 
     @Override
@@ -158,7 +156,8 @@ public class CsvReader implements Reader {
             return Files
                     .list(directory.toPath())
                     .filter(path -> path.toString().endsWith(".csv"))
-                    .map(file -> readFile(file.toFile()));
+                    .map(Path::toFile)
+                    .map(this::readFile);
         } catch (IOException e) {
             throw new ExgedParserException("Impossible de trouver le fichier ou les droits d'écriture ne sont pas attribué");
         }
@@ -167,15 +166,13 @@ public class CsvReader implements Reader {
     @Override
     public Stream<Data> readFolderParallel(File directory) throws ExgedParserException {
         try {
-            System.out.println(Files
-                    .list(directory.toPath())
-                    .filter(path -> path.toString().endsWith(".csv")).count());
             verifyFolder(directory);
             return Files
                     .list(directory.toPath())
                     .filter(path -> path.toString().endsWith(".csv"))
                     .parallel()
-                    .map(file -> readFile(file.toFile()));
+                    .map(Path::toFile)
+                    .map(this::readFile);
         } catch (IOException e) {
             throw new ExgedParserException("Impossible de trouver le fichier ou les droits d'écriture ne sont pas attribué");
         }

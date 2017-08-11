@@ -1,6 +1,6 @@
 package creator.generic;
 
-import config.json.mapping.creators.CreatorConfig;
+import config.mapping.creators.CreatorConfig;
 import creator.Creator;
 import creator.CreatorAnnotation;
 import data.Fold;

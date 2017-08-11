@@ -11,9 +11,7 @@ Exged est une application pour exécuter des migrations.
 
 Principal:
 - Module delivery (0.5)
-- Finir de refaire les configurations (1)
 - debug la barre de progression durant le traitement (0.25)
-- Améliorer le parser des fichiers de mainConfig pour lire les JSON/YAML avec une seule classe
 
 Secondaire:
 - Changer le parser csv pour en utiliser un avec des Stream, ce qui permettra d'éviter de remplir la ram pour la vider ensuite à chaque fichier. (0.5)

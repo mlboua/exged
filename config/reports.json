@@ -1,0 +1,29 @@
+[
+  {
+    "name": "rejects",
+    "type": "CSV",
+    "foldStatus": "REJECT",
+    "headers": [
+      "DOCIDX",
+      "DOCIDXGED",
+      "DB_NUMPLI",
+      "FILENAMED",
+      "ID_PLI",
+      "CODE_REJET",
+      "DETAIL_REJET"
+    ]
+  },
+  {
+    "name": "trace",
+    "type": "CSV",
+    "foldStatus": "ACCEPT",
+    "headers": [
+      "DOCIDX",
+      "DOCIDXGED",
+      "DB_NUMPLI",
+      "FILENAMED",
+      "ID_PLI",
+      "FILE_NAME"
+    ]
+  }
+]

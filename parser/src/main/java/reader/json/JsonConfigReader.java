@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import config.json.mapping.creators.CreatorConfig;
-import config.json.mapping.reject.RejectConfig;
-import config.json.mapping.validations.ValidatorsConfig;
+import config.mapping.creators.CreatorConfig;
+import config.mapping.reject.RejectConfig;
+import config.mapping.validations.ValidatorsConfig;
 
 import java.io.File;
 import java.io.IOException;

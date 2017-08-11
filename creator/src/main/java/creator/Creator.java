@@ -1,6 +1,6 @@
 package creator;
 
-import config.json.mapping.creators.CreatorConfig;
+import config.mapping.creators.CreatorConfig;
 import data.Fold;
 
 @FunctionalInterface

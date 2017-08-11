@@ -1,9 +1,9 @@
 package com.capgemini.exged;
 
-import com.capgemini.exged.config.Config;
 import com.capgemini.exged.exception.ExgedMainException;
 import com.capgemini.exged.initialiser.ConfigInitialiser;
 import com.google.common.io.Files;
+import config.Config;
 import creator.GenericCreator;
 import data.Data;
 import data.Fold;
@@ -81,7 +81,7 @@ public class App {
                     .peek(fold -> {
                         Map<String, Object> params = new HashMap<>();
                         params.put("pli", fold.getData());
-                        params.put("validations", fold.getHeader());
+                        params.put("headers", fold.getHeader());
                         final Optional<String> render = templateEngineExecutor.render(params);
                         if (render.isPresent()) {
                             try {
@@ -90,6 +90,9 @@ public class App {
                                         + fold.getId() + ".xml");
                                 Files.createParentDirs(xmlFile);
                                 Files.write(XMLUtils.toPrettyString(render.get(), 2).getBytes(), xmlFile);
+                                Files.copy(new File(fold.getData().get(0).get(fold.getHeader().get("FLENAMED"))), new File(Config.getMainConfig().getOutputTempFolder() + File.separator
+                                        + detectDate(fold.getData().get(0).get(fold.getHeader().get("DB_DATE_NUM"))) + File.separator
+                                        + fold.getId() + ".tif"));
                                 if (xmlFile.exists()) {
                                     stats.addNumberDocumentExit(fold.getData().size());
                                     stats.addNumberPliExit(1);
@@ -104,8 +107,11 @@ public class App {
                     })
                     .collect(Collectors.toList());
 
-            CsvWrite.writeCsvFile(new File("traceFold.csv"), foldList.get(0).getHeader().keySet().toArray(new String[foldList.get(0).getHeader().keySet().size()]), foldList.stream().flatMap(fold -> fold.getData().stream().map(row -> row.toArray(new String[row.size()]))).collect(Collectors.toList()));
-            timer.cancel();
+            if (!foldList.isEmpty()) {
+                CsvWrite.writeCsvFile(new File("traceFold.csv"), foldList.get(0).getHeader().keySet().toArray(new String[foldList.get(0).getHeader().keySet().size()]), foldList.stream().flatMap(fold -> fold.getData().stream().map(row -> row.toArray(new String[row.size()]))).collect(Collectors.toList()));
+
+            }
+            //timer.cancel();
             System.out.println();
             System.out.println("Création des fichiers de rapports");
 
@@ -127,7 +133,9 @@ public class App {
                     genericReportRowList.stream()
                             .collect(Collectors.groupingBy(GenericReportRow::getRejectCode,
                                     Collectors.groupingBy(GenericReportRow::getDetailReject))));
-            CsvWrite.writeCsvFile(new File("report.csv"), headers, rejectList);
+            if (!rejectList.isEmpty()) {
+                CsvWrite.writeCsvFile(new File("report.csv"), headers, rejectList);
+            }
 
             System.out.println(stats);
         } catch (ExgedParserException | IOException | ExgedMainException e) {

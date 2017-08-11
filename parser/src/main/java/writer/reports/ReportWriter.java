@@ -1,6 +1,6 @@
 package writer.reports;
 
-import config.json.mapping.reports.ReportsConfig;
+import config.mapping.reports.ReportsConfig;
 import data.Fold;
 
 import java.util.List;
