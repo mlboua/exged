@@ -44,6 +44,8 @@ allprojects {
     apply plugin: 'java'
     dependencies {
         compile "org.tinylog:tinylog:1.2"
+        // Stream Utils
+        compile group: "com.aol.simplereact", name: 'cyclops-react', version: '2.1.0'
     }
 }
 
@@ -54,6 +56,9 @@ dependencies {
     compile project(':creator')
     compile project(':validation')
     compile project(':render')
+    compile project(':report')
+    compile project(':delivery')
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

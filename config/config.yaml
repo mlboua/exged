@@ -20,13 +20,13 @@ migration: omnirep            # Exemple: allur | adhpr | omnirep
 mode: dev                     # dev (ne copie pas les fichiers externe) | prod
 
 # Configuration des chemins
-configFolder: config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
+configFolder: reader.config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
 
 inputFolder: input            # Dossier d'entrée pour les fichiers
 tempFolder: temp              # Dossier temporaire pour les traitement (fichiers fragmentés, fichiers générés avec le template)
 outputFolder: archives        # Dossier de sortie de l'application
 resumeFolder: traitement      # Dossier pour la sauvegar des logs et fichiers de rapports
-externFilesPath: ../../       # Emplacement des fichiers externe
+externFilesPath: .       # Emplacement des fichiers externe
 
 # Autres paramètres de configurations
 tempFilesNumberOfLines: 25000 # Nombre de lignes pour les fichiers temporaires (défaut: 25000) /!\ Une valeur importante peut causer des problèmes mémoire

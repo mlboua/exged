@@ -78,7 +78,7 @@ public class CsvReader implements Reader {
                 .mapToLong(this::countRows).sum();
     }
 
-    public List<File> splitFile(File file, File outputFolder, int numberForEachFile, List<CsvIdentifier> identifiers) throws ExgedParserException {
+    public void splitFile(File file, File outputFolder, int numberForEachFile, List<CsvIdentifier> identifiers) throws ExgedParserException {
         final RowListProcessor rowProcessor = new RowListProcessor();
         final CsvParser parser = createCsvParser(rowProcessor);
         final List<File> files = new ArrayList<>();
@@ -103,6 +103,7 @@ public class CsvReader implements Reader {
                         } else if (!idFold.equals(strings[indexId])) {
                             File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + files.size() + ".csv");
                             writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
+                            System.out.println("file split");
                             files.add(fileSplit);
                             rows.clear();
                         }
@@ -115,6 +116,7 @@ public class CsvReader implements Reader {
                 }
             }
             if (!rows.isEmpty()) {
+                System.out.println("file split");
                 File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + files.size() + ".csv");
                 writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
             }
@@ -122,7 +124,6 @@ public class CsvReader implements Reader {
             throw new ExgedParserException("Il faut les en-têtes du fichier CSV afin de le diviser");
         }
         parser.stopParsing();
-        return files;
     }
 
     @Override

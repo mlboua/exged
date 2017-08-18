@@ -2,137 +2,149 @@ package stats;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Stats {
 
-    private final Instant instantStart;
+    private static Instant instantStart;
 
-    private AtomicInteger numberFilesEntry = new AtomicInteger(0);
+    private static AtomicInteger numberFilesEntry = new AtomicInteger(0);
 
-    private AtomicInteger numberPliEntry = new AtomicInteger(0);
-    private AtomicLong numberDocumentEntry = new AtomicLong(0L);
+    private static AtomicInteger numberPliEntry = new AtomicInteger(0);
+    private static AtomicLong numberDocumentEntry = new AtomicLong(0L);
 
-    private AtomicInteger numberFileExit = new AtomicInteger(0);
-    private AtomicInteger numberPliExit = new AtomicInteger(0);
-    private AtomicLong numberDocumentExit = new AtomicLong(0L);
+    private static AtomicInteger numberFileExit = new AtomicInteger(0);
+    private static AtomicInteger numberPliExit = new AtomicInteger(0);
+    private static AtomicLong numberDocumentExit = new AtomicLong(0L);
 
-    private AtomicInteger numberPliNotValid = new AtomicInteger(0);
-    private AtomicInteger numberDocumentNotValid = new AtomicInteger(0);
+    private static AtomicInteger numberPliNotValid = new AtomicInteger(0);
+    private static AtomicInteger numberDocumentNotValid = new AtomicInteger(0);
 
-    public Stats() {
-        this.instantStart = Instant.now();
+    private static Map<String, AtomicInteger> rejectCounter = new ConcurrentHashMap<>();
+
+    public static void init() {
+        instantStart = Instant.now();
+        numberFilesEntry = new AtomicInteger(0);
+        numberPliEntry = new AtomicInteger(0);
+        numberDocumentEntry = new AtomicLong(0L);
+        numberFileExit = new AtomicInteger(0);
+        numberPliExit = new AtomicInteger(0);
+        numberDocumentExit = new AtomicLong(0L);
+        numberPliNotValid = new AtomicInteger(0);
+        numberDocumentNotValid = new AtomicInteger(0);
+        rejectCounter = new ConcurrentHashMap<>();
     }
 
-    public Instant getInstantStart() {
+    public static Map<String, AtomicInteger> getRejectCounter() {
+        return rejectCounter;
+    }
+
+    public static Instant getInstantStart() {
         return instantStart;
     }
 
-    public final void addNumberFilesEntry(final int value) {
+    public static void addNumberFilesEntry(final int value) {
         numberFilesEntry.set(numberFilesEntry.get() + value);
     }
 
-    public final void addNumberPliEntry(final int numberPliEntry) {
-        this.numberPliEntry.addAndGet(numberPliEntry);
+    public static void addNumberPliEntry(final int numberPliEntry) {
+        Stats.numberPliEntry.addAndGet(numberPliEntry);
     }
 
-    public final void addNumberDocumentEntry(final int numberDocumentEntry) {
-        this.numberDocumentEntry.addAndGet(numberDocumentEntry);
+    public static void addNumberDocumentEntry(final int numberDocumentEntry) {
+        Stats.numberDocumentEntry.addAndGet(numberDocumentEntry);
     }
 
-    public final void addNumberFileExit(final int numberFileExit) {
-        this.numberFileExit.addAndGet(numberFileExit);
+    public static void addNumberFileExit(final int numberFileExit) {
+        Stats.numberFileExit.addAndGet(numberFileExit);
     }
 
-    public final void addNumberPliExit(final int numberPliExit) {
-        this.numberPliExit.addAndGet(numberPliExit);
+    public static void addNumberPliExit(final int numberPliExit) {
+        Stats.numberPliExit.addAndGet(numberPliExit);
     }
 
-    public final void addNumberDocumentExit(final int numberDocumentExit) {
-        this.numberDocumentExit.addAndGet(numberDocumentExit);
+    public static void addNumberDocumentExit(final int numberDocumentExit) {
+        Stats.numberDocumentExit.addAndGet(numberDocumentExit);
     }
 
-    public final void addNumberPliNotValid(final int numberPliNotValid) {
-        this.numberPliNotValid.addAndGet(numberPliNotValid);
+    public static void addNumberPliNotValid(final int numberPliNotValid) {
+        Stats.numberPliNotValid.addAndGet(numberPliNotValid);
     }
 
-    public final void addNumberDocumentNotValid(final int numberDocumentNotValid) {
-        this.numberDocumentNotValid.addAndGet(numberDocumentNotValid);
+    public static void addNumberDocumentNotValid(final int numberDocumentNotValid) {
+        Stats.numberDocumentNotValid.addAndGet(numberDocumentNotValid);
     }
 
     /**
      * @return the numberFilesEntry
      */
-    public final AtomicInteger getNumberFilesEntry() {
+    public static AtomicInteger getNumberFilesEntry() {
         return numberFilesEntry;
     }
 
     /**
      * @return the numberPliEntry
      */
-    public final AtomicInteger getNumberPliEntry() {
+    public static AtomicInteger getNumberPliEntry() {
         return numberPliEntry;
     }
 
     /**
      * @return the numberDocumentEntry
      */
-    public final AtomicLong getNumberDocumentEntry() {
+    public static AtomicLong getNumberDocumentEntry() {
         return numberDocumentEntry;
     }
 
     /**
      * @return the numberFileExit
      */
-    public final AtomicInteger getNumberFileExit() {
+    public static AtomicInteger getNumberFileExit() {
         return numberFileExit;
     }
 
     /**
      * @return the numberPliExit
      */
-    public final AtomicInteger getNumberPliExit() {
+    public static AtomicInteger getNumberPliExit() {
         return numberPliExit;
     }
 
     /**
      * @return the numberDocumentExit
      */
-    public final AtomicLong getNumberDocumentExit() {
+    public static AtomicLong getNumberDocumentExit() {
         return numberDocumentExit;
     }
 
     /**
      * @return the numberPliNotInExit
      */
-    public final AtomicInteger getNumberPliNotValid() {
+    public static AtomicInteger getNumberPliNotValid() {
         return numberPliNotValid;
     }
 
     /**
      * @return the numberDocumentIgnored
      */
-    public final AtomicInteger getNumberDocumentNotValid() {
+    public static AtomicInteger getNumberDocumentNotValid() {
         return numberDocumentNotValid;
     }
 
     /**
      * @return the numberFileTreatedPerSeconds
      */
-    public final float getNumberFileTreatedPerSeconds() {
-        return getNumberDocumentEntry().get() / (float) (Duration.between(this.instantStart, Instant.now()).toMillis() / 1000.0);
+    public static float getNumberFileTreatedPerSeconds() {
+        return getNumberDocumentEntry().get() / (float) (Duration.between(instantStart, Instant.now()).toMillis() / 1000.0);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
+    public static String resume() {
         return "======================== RESUME ========================"
                 + "\n\tTemps d'execution: "
-                + (Duration.between(this.instantStart, Instant.now()).toMillis() / 1000.0)
+                + (Duration.between(instantStart, Instant.now()).toMillis() / 1000.0)
                 + "\n\tNombre de documents traités par secondes: "
                 + getNumberFileTreatedPerSeconds()
                 + "\n======================== ENTREE ========================"

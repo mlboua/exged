@@ -1,9 +1,10 @@
 package engine;
 
-import config.mapping.mainconfig.MainConfig;
+import org.pmw.tinylog.Logger;
 import org.rythmengine.Rythm;
 import org.rythmengine.internal.compiler.TemplateClass;
 import org.rythmengine.resource.StringTemplateResource;
+import reader.config.mapping.mainconfig.MainConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class TemplateEngineExecutor {
         try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
         } catch (final IOException e) {
-            System.err.println(e);
+            Logger.error(e);
         }
 
         return contentBuilder.toString();

@@ -1,9 +1,10 @@
 package creator.generic;
 
-import config.mapping.creators.CreatorConfig;
 import creator.Creator;
 import creator.CreatorAnnotation;
 import data.Fold;
+import org.pmw.tinylog.Logger;
+import reader.config.mapping.creators.CreatorConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,9 +12,9 @@ import java.nio.file.Paths;
 import java.util.*;
 
 @CreatorAnnotation(name = "fileMapperList")
-public class fileMapperList implements Creator {
+public class FileMapperList implements Creator {
 
-    private final static Map<String, Map<String, List<String>>> mapperFile;
+    private static final Map<String, Map<String, List<String>>> mapperFile;
 
     static {
         mapperFile = new HashMap<>();
@@ -35,20 +36,20 @@ public class fileMapperList implements Creator {
                     });
             mapperFile.put(creatorConfig.getArguments().get(0), converter);
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.error(e);
         }
     }
 
-    public static void init(List<CreatorConfig> creatorConfig) {
+    private static void init(List<CreatorConfig> creatorConfig) {
         creatorConfig.stream()
-                .filter(fileMapperList::fileNotGenerated)
-                .forEach(fileMapperList::generateMap);
+                .filter(FileMapperList::fileNotGenerated)
+                .forEach(FileMapperList::generateMap);
     }
 
     @Override
     public void createValue(Fold fold, CreatorConfig creatorConfig) {
         if (!mapperFile.containsKey(creatorConfig.getArguments().get(0))) {
-            init(Arrays.asList(creatorConfig));
+            init(Collections.singletonList(creatorConfig));
         }
         String valueToAdd = mapperFile.get(creatorConfig.getArguments().get(0))                    // Map du fichier
                 .get(fold.getData().get(0)                          // Get de la valeur dans le pli à l'index du header

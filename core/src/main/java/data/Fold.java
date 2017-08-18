@@ -6,10 +6,16 @@ import java.util.Map;
 public interface Fold {
 
     String getId();
-
     void setId(String id);
 
     List<List<String>> getData();
-
     Map<String, Integer> getHeader();
+
+    String getValue(int rowNumber, int rowIndex);
+
+    String getValue(int rowNumber, String indexName);
+
+    FoldStatus getStatus();
+
+    void setStatus(FoldStatus foldStatus);
 }

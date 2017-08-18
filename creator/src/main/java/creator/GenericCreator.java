@@ -1,8 +1,9 @@
 package creator;
 
-import config.mapping.creators.CreatorConfig;
 import data.Fold;
+import org.pmw.tinylog.Logger;
 import org.reflections.Reflections;
+import reader.config.mapping.creators.CreatorConfig;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -14,8 +15,8 @@ public class GenericCreator {
     private static final Map<String, Creator> creatorMap;
 
     static {
-        Reflections ref = new Reflections("creator");
-        creatorMap = ref.getTypesAnnotatedWith(CreatorAnnotation.class)
+        creatorMap = new Reflections("creator")
+                .getTypesAnnotatedWith(CreatorAnnotation.class)
                 .stream()
                 .collect(Collectors.toMap(GenericCreator::getCreatorName, GenericCreator::createCreatorInstance));
 
@@ -35,19 +36,12 @@ public class GenericCreator {
         try {
             return (Creator) creator.getConstructor().newInstance();
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+            Logger.error("Problème lors de la création d'un créateur: " + e);
         }
         return null;
     }
 
-    public Fold createFields(Fold fold, Map<String, Integer> headers) {
-        creatorConfigList.forEach(mappingCreator -> {
-            if (creatorMap.containsKey(mappingCreator.getCreator())) {
-                creatorMap.get(mappingCreator.getCreator()).createValue(fold, mappingCreator);
-            } else {
-                System.out.println(mappingCreator.getCreator());
-            }
-        });
-        return fold;
+    public void createFields(Fold fold) {
+        creatorConfigList.forEach(creator -> creatorMap.get(creator.getCreator()).createValue(fold, creator));
     }
 }

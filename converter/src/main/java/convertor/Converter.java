@@ -1,7 +1,7 @@
 package convertor;
 
-import config.GenericNameWithArguments;
 import data.Fold;
+import reader.config.GenericNameWithArguments;
 
 @FunctionalInterface
 public interface Converter {

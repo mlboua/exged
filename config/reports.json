@@ -1,6 +1,14 @@
 [
   {
-    "name": "rejects",
+    "name": "rejectsTrace",
+    "type": "CSV",
+    "foldStatus": "REJECT",
+    "headers": [
+      "all"
+    ]
+  },
+  {
+    "name": "rejectsTrace",
     "type": "CSV",
     "foldStatus": "REJECT",
     "headers": [

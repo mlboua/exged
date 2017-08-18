@@ -1,5 +1,5 @@
 package data;
 
 public enum FoldStatus {
-    ACCEPT, REJECT, NOTTREATED
+    ACCEPT, REJECT, NOTTREATED, TREATED
 }

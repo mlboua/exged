@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    //Parser Stream
     compile "org.simpleflatmapper:sfm-csv:3.12.2"
     // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
     compile group: 'com.univocity', name: 'univocity-parsers', version: '2.4.1'
@@ -20,6 +21,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.0"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.0"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.0"
+
     compile project(":core")
     compile project(":validation")
     testCompile group: 'junit', name: 'junit', version: '4.12'

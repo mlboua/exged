@@ -2,10 +2,10 @@ package com.capgemini.exged.initialiser;
 
 import com.beust.jcommander.JCommander;
 import com.capgemini.exged.exception.ExgedMainException;
-import config.Config;
 import exception.ExgedParserException;
 import initialisation.Args;
 import initialisation.InitFolders;
+import reader.config.Config;
 
 import java.io.File;
 import java.util.Arrays;
@@ -14,8 +14,8 @@ import java.util.Optional;
 
 public class ConfigInitialiser {
 
-    private static final List<String> defaultPathConfig = Arrays.asList("config.yaml", "config.json",
-            "config/config.yaml", "config/config.json");
+    private static final List<String> defaultPathConfig = Arrays.asList("reader.config.yaml", "reader.config.json",
+            "config/reader.config.yaml", "config/reader.config.json");
 
     private ConfigInitialiser() {
     }

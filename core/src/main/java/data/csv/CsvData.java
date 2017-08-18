@@ -2,10 +2,12 @@ package data.csv;
 
 import data.Data;
 import data.Fold;
+import data.FoldStatus;
 import identifier.csv.CsvIdentifier;
 import identifier.csv.CsvIdentifierValidation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CsvData implements Data {
@@ -58,7 +60,7 @@ public class CsvData implements Data {
                 }
             }
         });
-        foldTemp.forEach((id, rows) -> streamFold.add(new CsvFold(id, rows, headers)));
+        foldTemp.forEach((id, rows) -> streamFold.add(new CsvFold(id, rows.stream().map(ArrayList::new).collect(Collectors.toList()), headers, FoldStatus.NOTTREATED)));
         return streamFold.build();
     }
 

@@ -5,7 +5,7 @@ import com.beust.jcommander.Parameter;
 public class Args {
 
     @Parameter(names = {
-            "--config",
+            "--reader.config",
             "-c"}, description = "Emplacement du fichier de configuration")
     private String configPath;
 

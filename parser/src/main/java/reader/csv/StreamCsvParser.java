@@ -1,44 +1,88 @@
 package reader.csv;
 
-import data.Data;
+import cyclops.async.LazyReact;
+import cyclops.stream.FutureStream;
+import cyclops.stream.ReactiveSeq;
+import data.Fold;
+import data.FoldStatus;
+import data.csv.CsvFold;
 import exception.ExgedParserException;
-import reader.Reader;
+import identifier.csv.CsvIdentifier;
+import identifier.csv.CsvIdentifierValidation;
+import org.pmw.tinylog.Logger;
+import org.simpleflatmapper.csv.CsvParser;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Stream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.IntStream;
 
-public class StreamCsvParser implements Reader {
+public class StreamCsvParser {
 
-    @Override
-    public Data readFile(File file) {
-        /*try (Stream<String[]> rowStream = CsvParser.stream(file)) {
-            return new StreamData(rowStream.map(Arrays::asList), CsvParser.stream(file).limit(1));
+    private List<CsvIdentifier> csvIdentifiers;
+
+    public StreamCsvParser(List<CsvIdentifier> csvIdentifiers) {
+        this.csvIdentifiers = csvIdentifiers;
+    }
+
+    private static List<String> toArrayList(String[] row) {
+        return new ArrayList<>(Arrays.asList(row));
+    }
+
+    public ReactiveSeq<Fold> readFileToFold(File file) {
+        try {
+            final Map<String, Integer> headers = getHeaders(getHeader(file, ","));
+            try (FutureStream<String[]> futureRowStream = new LazyReact(10, 12)
+                    .autoOptimizeOn()
+                    .fromStream(CsvParser.stream(new FileReader(file)).skip(1))) {
+
+                final CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
+                return futureRowStream.map(StreamCsvParser::toArrayList)
+                        .groupBy(row -> row.get(csvIdentifierValidation.validate(csvIdentifiers, row).orElseGet(null).getIndex()))
+                        .stream()
+                        .map(tupleIdRow -> new CsvFold(tupleIdRow.v1, tupleIdRow.v2, headers, FoldStatus.NOTTREATED));
+            }
         } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+            Logger.error("Impossible de lire le fichier CSV: " + file.getName() + " - " + e);
+        }
         return null;
     }
 
-    @Override
-    public Stream<Data> readFiles(List<File> files) {
-        return null;
+    private Map<String, Integer> getHeaders(String[] headers) {
+        final Map<String, Integer> headersMap = new LinkedHashMap<>();
+        IntStream.range(0, headers.length).forEach(key -> headersMap.put(headers[key], key));
+        return headersMap;
     }
 
-    @Override
-    public Stream<Data> readFilesParallel(List<File> files) {
-        return null;
+    private String[] getHeader(File file, String seperator) throws IOException {
+        return Files.lines(file.toPath())
+                .findFirst()
+                .map(headers -> headers.split(seperator))
+                .orElseGet(() -> new String[0]);
     }
 
-    @Override
-    public Stream<Data> readFolder(File directory) throws ExgedParserException {
-        return null;
+    public FutureStream<Fold> readFolderParallel(File directory) throws ExgedParserException {
+        try {
+            verifyFolder(directory);
+            return new LazyReact(100, 110).fromStream(Files.list(directory.toPath()))
+                    .filter(path -> path.toString().endsWith(".csv"))
+                    .async()
+                    .map(Path::toFile)
+                    .flatMap(this::readFileToFold);
+        } catch (IOException e) {
+            throw new ExgedParserException("Impossible de trouver le fichier ou les droits d'écriture ne sont pas attribué");
+        }
     }
 
-    @Override
-    public Stream<Data> readFolderParallel(File directory) throws IOException, ExgedParserException {
-        return null;
+    private void verifyFolder(File directory) throws ExgedParserException, IOException {
+        if (!directory.isDirectory()) {
+            throw new ExgedParserException("Le fichier donné en paramètre n'est pas un dossier");
+        }
+        if (Files.list(directory.toPath()).count() == 0) {
+            throw new ExgedParserException("Dossier d'entrée vide.");
+        }
     }
-
 }
