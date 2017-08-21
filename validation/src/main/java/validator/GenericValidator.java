@@ -1,10 +1,10 @@
 package validator;
 
+import config.mapping.reject.RejectConfig;
+import config.mapping.validations.ValidatorsConfig;
 import data.Fold;
 import exception.ExgedValidatorException;
 import org.reflections.Reflections;
-import reader.config.mapping.reject.RejectConfig;
-import reader.config.mapping.validations.ValidatorsConfig;
 import validator.complex.ComplexValidationCondition;
 import validator.complex.ComplexValidator;
 import validator.simple.SimpleValidationCondition;

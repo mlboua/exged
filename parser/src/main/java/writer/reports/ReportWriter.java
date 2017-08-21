@@ -1,7 +1,7 @@
 package writer.reports;
 
+import config.mapping.reports.ReportsConfig;
 import data.Fold;
-import reader.config.mapping.reports.ReportsConfig;
 
 import java.util.List;
 import java.util.stream.Stream;

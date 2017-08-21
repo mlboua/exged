@@ -1,9 +1,9 @@
 package creator;
 
+import config.mapping.creators.CreatorConfig;
 import data.Fold;
 import org.pmw.tinylog.Logger;
 import org.reflections.Reflections;
-import reader.config.mapping.creators.CreatorConfig;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;

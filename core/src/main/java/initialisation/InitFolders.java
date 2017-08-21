@@ -1,6 +1,7 @@
 package initialisation;
 
-import reader.config.mapping.mainconfig.MainConfig;
+
+import config.mapping.mainconfig.MainConfig;
 
 import java.io.File;
 

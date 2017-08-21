@@ -3,6 +3,7 @@ package com.capgemini.exged;
 import com.capgemini.exged.exception.ExgedMainException;
 import com.capgemini.exged.initialiser.ConfigInitialiser;
 import com.google.common.io.Files;
+import config.Config;
 import creator.GenericCreator;
 import cyclops.collections.mutable.QueueX;
 import cyclops.stream.FutureStream;
@@ -13,7 +14,6 @@ import exception.ExgedParserException;
 import identifier.csv.CsvIdentifier;
 import org.jooq.lambda.tuple.Tuple2;
 import org.pmw.tinylog.Logger;
-import reader.config.Config;
 import reader.csv.CsvReader;
 import reader.csv.StreamCsvParser;
 import reports.GenericReportRow;
@@ -47,7 +47,6 @@ public class App {
             final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(Config.getMainConfig());
             // Stream de Rejects
             Stream.Builder<GenericReportRow> rejectStream = Stream.builder();
-
             final GenericValidator genericValidator = new GenericValidator(Config.getValidators(), Config.getRejects());
             final GenericCreator genericCreator = new GenericCreator(Config.getCreators());
 
@@ -68,6 +67,7 @@ public class App {
                 folds.map(fold -> new Tuple2<>(fold, genericValidator.validateFold(fold)))
                         .peek((Tuple2<Fold, Optional<List<DetailReject>>> tupleFoldReject) ->
                                 tupleFoldReject.v2.ifPresent(rejectList -> {
+                                    tupleFoldReject.v1.setStatus(FoldStatus.REJECT);
                                     Stats.addNumberPliNotValid(1);
                                     Stats.addNumberDocumentNotValid(tupleFoldReject.v1.getData().size());
                                     rejectList.forEach(reject -> {
@@ -96,6 +96,7 @@ public class App {
                                 return true;
                             } else {
                                 tupleFoldRender.v1.setStatus(FoldStatus.REJECT);
+                                Stats.addNumberPliNotValid(1);
                                 rejectQueueX.plus(new GenericReportRow("Render-1", "Erreur lors de l'appel du générateur de template", tupleFoldRender.v1));
                                 return false;
                             }
@@ -122,6 +123,13 @@ public class App {
                             }
                         })
                         .size();
+                Logger.info("Traitement des rejets");
+                /*rejectQueueX.stream()
+                        .peek()  // Rewrite csv
+                        .peek()         //add 'EXGED_ERROR" header and errors in each row
+
+                 concat(rejectQueueX.stream, acceptedStream)
+                */
                 Logger.info("Fin du traitement");
             }
 

@@ -1,10 +1,10 @@
 package creator.generic;
 
+import config.mapping.creators.CreatorConfig;
 import creator.Creator;
 import creator.CreatorAnnotation;
 import data.Fold;
 import org.pmw.tinylog.Logger;
-import reader.config.mapping.creators.CreatorConfig;
 
 import java.io.IOException;
 import java.nio.file.Files;

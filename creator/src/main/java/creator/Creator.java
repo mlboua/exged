@@ -1,7 +1,7 @@
 package creator;
 
+import config.mapping.creators.CreatorConfig;
 import data.Fold;
-import reader.config.mapping.creators.CreatorConfig;
 
 @FunctionalInterface
 public interface Creator {

@@ -1,10 +1,10 @@
 package engine;
 
+import config.mapping.mainconfig.MainConfig;
 import org.pmw.tinylog.Logger;
 import org.rythmengine.Rythm;
 import org.rythmengine.internal.compiler.TemplateClass;
 import org.rythmengine.resource.StringTemplateResource;
-import reader.config.mapping.mainconfig.MainConfig;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,9 +1,9 @@
 package report;
 
+import config.mapping.reports.ReportsConfig;
 import cyclops.async.adapters.Topic;
 import data.Fold;
 import org.pmw.tinylog.Logger;
-import reader.config.mapping.reports.ReportsConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;

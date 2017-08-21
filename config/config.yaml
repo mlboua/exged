@@ -20,7 +20,7 @@ migration: omnirep            # Exemple: allur | adhpr | omnirep
 mode: dev                     # dev (ne copie pas les fichiers externe) | prod
 
 # Configuration des chemins
-configFolder: reader.config          # Emplacement du dossier de configuration avec les autres fichiers de configuration
+configFolder: config         # Emplacement du dossier de configuration avec les autres fichiers de configuration
 
 inputFolder: input            # Dossier d'entrée pour les fichiers
 tempFolder: temp              # Dossier temporaire pour les traitement (fichiers fragmentés, fichiers générés avec le template)
