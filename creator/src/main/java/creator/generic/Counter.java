@@ -24,7 +24,7 @@ public class Counter implements Creator {
             // Pour commencer le compteur à 0
             for (int i = 0; i < atomicIntegerArray.length(); i++) {
                 row.add(Integer.toString(atomicIntegerArray.get(i)));
-                fold.getHeader().put(creatorConfig.getHeaders().get(i), fold.getData().get(0).size() - 1);
+                fold.getHeader().put(creatorConfig.getHeaders().get(i), row.size() - 1);
             }
 
             // Mise à jour des counter

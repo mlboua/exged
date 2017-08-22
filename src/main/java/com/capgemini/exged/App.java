@@ -1,12 +1,12 @@
 package com.capgemini.exged;
 
 import com.capgemini.exged.exception.ExgedMainException;
-import com.capgemini.exged.initialiser.ConfigInitialiser;
+import com.capgemini.exged.initialiser.ConfigInitializer;
 import com.google.common.io.Files;
 import config.Config;
 import creator.GenericCreator;
+import cyclops.async.adapters.Topic;
 import cyclops.collections.mutable.QueueX;
-import cyclops.stream.FutureStream;
 import data.Fold;
 import data.FoldStatus;
 import engine.TemplateEngineExecutor;
@@ -16,11 +16,12 @@ import org.jooq.lambda.tuple.Tuple2;
 import org.pmw.tinylog.Logger;
 import reader.csv.CsvReader;
 import reader.csv.StreamCsvParser;
+import report.GenericReport;
 import reports.GenericReportRow;
 import stats.Stats;
 import validator.DetailReject;
 import validator.GenericValidator;
-import writer.xml.XMLUtils;
+import writer.reports.ReportWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,14 +40,13 @@ public class App {
             Logger.info("Initialisation");
             Stats.init();
             // Chargement en mémoire des fichiers de configuration json/yaml
-            ConfigInitialiser.initConfig(args);
+            ConfigInitializer.initConfig(args);
             // Préparation du lecteur de fichier CSV
             final CsvReader reader = new CsvReader(true,
                     Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()));
             // Moteur de template
             final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(Config.getMainConfig());
-            // Stream de Rejects
-            Stream.Builder<GenericReportRow> rejectStream = Stream.builder();
+
             final GenericValidator genericValidator = new GenericValidator(Config.getValidators(), Config.getRejects());
             final GenericCreator genericCreator = new GenericCreator(Config.getCreators());
 
@@ -55,48 +55,51 @@ public class App {
             Stats.addNumberFilesEntry((int) java.nio.file.Files.list(Paths.get(Config.getMainConfig().getInputFolder())).count());
 
             // Lancement des stats dans la console
-            //final Timer timer = new Timer(true);
-            //timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 1000);
+            final Timer timer = new Timer(true);
+            timer.scheduleAtFixedRate(new MyTimerTask(), 2000, 3000);
 
             final QueueX<GenericReportRow> rejectQueueX = QueueX.<GenericReportRow>empty().lazy();
 
             Logger.info("Lancement du traitement");
 
             StreamCsvParser streamCsvParser = new StreamCsvParser(Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()));
-            try (FutureStream<Fold> folds = streamCsvParser.readFolderParallel(new File(Config.getMainConfig().getInputFolder()))) {
-                folds.map(fold -> new Tuple2<>(fold, genericValidator.validateFold(fold)))
-                        .peek((Tuple2<Fold, Optional<List<DetailReject>>> tupleFoldReject) ->
-                                tupleFoldReject.v2.ifPresent(rejectList -> {
-                                    tupleFoldReject.v1.setStatus(FoldStatus.REJECT);
-                                    Stats.addNumberPliNotValid(1);
-                                    Stats.addNumberDocumentNotValid(tupleFoldReject.v1.getData().size());
-                                    rejectList.forEach(reject -> {
-                                        if (reject.getValues().isPresent()) {
-                                            rejectQueueX.plus(new GenericReportRow(reject.getCode(), reject.getDetail() + ": " + reject.getValues().get(), tupleFoldReject.v1));
-                                        } else {
-                                            rejectQueueX.plus(new GenericReportRow(reject.getCode(), reject.getDetail(), tupleFoldReject.v1));
-                                        }
+            try (Stream<Fold> folds = streamCsvParser.readFolderParallel(new File(Config.getMainConfig().getInputFolder()))) {
+                final Stream<Fold> concatStream = folds.map(fold -> new Tuple2<>(fold, genericValidator.validateFold(fold)))
+                        .peek((Tuple2<Fold, Optional<List<DetailReject>>> tupleFoldReject) -> {
+                                    Stats.addNumberPliEntry(1);
+                                    tupleFoldReject.v2.ifPresent(rejectList -> {
+                                        tupleFoldReject.v1.setStatus(FoldStatus.REJECT);
+                                        Stats.addNumberPliNotValid(1);
+                                        Stats.addNumberDocumentNotValid(tupleFoldReject.v1.getData().size());
+                                        rejectList.forEach(reject -> {
+                                            if (reject.getValues().isPresent()) {
+                                                tupleFoldReject.v1.setHeader(new LinkedHashMap<>(tupleFoldReject.v1.getHeader()));
+                                                rejectQueueX.plus(new GenericReportRow(reject.getCode(), reject.getDetail() + ": " + reject.getValues().get(), tupleFoldReject.v1));
+                                            } else {
+                                                tupleFoldReject.v1.setHeader(new LinkedHashMap<>(tupleFoldReject.v1.getHeader()));
+                                                rejectQueueX.plus(new GenericReportRow(reject.getCode(), reject.getDetail(), tupleFoldReject.v1));
+                                            }
+                                        });
                                     });
-                                })
+                                }
                         )
-                        .filterNot(tupleFoldReject -> tupleFoldReject.v2.isPresent())
+                        .filter(tupleFoldReject -> !tupleFoldReject.v2.isPresent())
                         .map(Tuple2::v1)
                         .peek(genericCreator::createFields)
                         .peek(fold -> fold.setId(fold.getValue(0, "ID_PLI")))
-                        .parallel(foldStream ->
-                                foldStream.map(fold -> {
-                                    Map<String, Object> params = new HashMap<>();
-                                    params.put("pli", fold.getData());
-                                    params.put("headers", fold.getHeader());
-                                    return new Tuple2<>(fold, templateEngineExecutor.render(params));
-                                })
-                        )
+                        .map(fold -> {
+                            Map<String, Object> params = new HashMap<>();
+                            params.put("pli", fold.getData());
+                            params.put("headers", fold.getHeader());
+                            return new Tuple2<>(fold, templateEngineExecutor.render(params));
+                        })
                         .filter(tupleFoldRender -> {
                             if (tupleFoldRender.v2.isPresent()) {
                                 return true;
                             } else {
                                 tupleFoldRender.v1.setStatus(FoldStatus.REJECT);
                                 Stats.addNumberPliNotValid(1);
+                                tupleFoldRender.v1.setHeader(new LinkedHashMap<>(tupleFoldRender.v1.getHeader()));
                                 rejectQueueX.plus(new GenericReportRow("Render-1", "Erreur lors de l'appel du générateur de template", tupleFoldRender.v1));
                                 return false;
                             }
@@ -106,8 +109,9 @@ public class App {
                                 File xmlFile = new File(Config.getMainConfig().getOutputTempFolder() + File.separator
                                         + detectDate(tupleFold.v1.getValue(0, "DB_DATE_NUM")) + File.separator
                                         + tupleFold.v1.getId() + ".xml");
-                                Files.createParentDirs(xmlFile);
-                                Files.write(XMLUtils.toPrettyString(tupleFold.v2.orElseGet(null), 2).getBytes(), xmlFile);
+
+                                //java.nio.file.Files.createDirectories(xmlFile.toPath());
+                                //java.nio.file.Files.write(xmlFile.toPath(), XMLUtils.toPrettyString(tupleFold.v2.orElseGet(null), 2).getBytes());
                                 if (Config.getMainConfig().getMode().equalsIgnoreCase("prod")) {
                                     Files.copy(new File(Config.getMainConfig().getExternFilesPath() + File.separator +
                                                     tupleFold.v1.getValue(0, "FLENAMED")),
@@ -122,21 +126,16 @@ public class App {
                                 e.printStackTrace();
                             }
                         })
-                        .size();
+                        .map(Tuple2::v1);
                 Logger.info("Traitement des rejets");
-                /*rejectQueueX.stream()
-                        .peek()  // Rewrite csv
-                        .peek()         //add 'EXGED_ERROR" header and errors in each row
-
-                 concat(rejectQueueX.stream, acceptedStream)
-                */
+                Stream<Fold> rejectStream = rejectQueueX.stream().map(genericReportRow -> {
+                    genericReportRow.getFold().getData().forEach(row -> row.add(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject()));
+                    genericReportRow.getFold().getHeader().put("EXGED_ERRORS", genericReportRow.getFold().getData().get(0).size()-1);
+                    return genericReportRow.getFold();
+                });
+                GenericReport.createReport(Config.getMainConfig().getReportsFolder(), Config.getReports(), Stream.concat(concatStream, rejectStream));
                 Logger.info("Fin du traitement");
             }
-
-
-
-
-
 
             /*java.nio.file.Files.list(Paths.get(Config.getMainConfig().getInputFolder()))
                     .forEach(path -> {
@@ -344,7 +343,8 @@ public class App {
                 CsvWrite.writeCsvFile(new File("report.csv"), headers, rejectList);
             }
 */
-            System.out.println(Stats.resume());
+            Logger.info(Stats.resume());
+            System.exit(0);
         } catch (IOException | ExgedMainException | ExgedParserException e) {
             e.printStackTrace();
         }
@@ -371,21 +371,14 @@ public class App {
                             TimeUnit.MILLISECONDS.toSeconds(eta) % TimeUnit.MINUTES.toSeconds(1));
 
             StringBuilder consoleMsg = new StringBuilder(140);
-            int percent = (int) ((Stats.getNumberDocumentExit().get() + Stats.getNumberDocumentNotValid().get()) * 100 / Stats.getNumberDocumentEntry().get());
-            consoleMsg.append('\r')
-                    .append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
-                    .append(String.format(" %d%% [", percent))
-                    .append(String.join("", Collections.nCopies(percent, "=")))
-                    .append('>')
-                    .append(String.join("", Collections.nCopies(100 - percent, " ")))
-                    .append(']')
-                    .append(String.join("", Collections.nCopies((int) (Math.log10(Stats.getNumberDocumentEntry().get())) - ((int) (Math.log10(Stats.getNumberDocumentExit().get() + Stats.getNumberDocumentNotValid().get()))),
-                            " ")))
-                    .append(String.format(" %d/%d, ETA: %s, Row/sec: %d/sec, RAM(MB): %d/%d",
+
+            consoleMsg
+                    .append(String.format("%d%% %d/%d, ETA: %s, Row/sec: %d/sec, RAM(MB): %d/%d",
+                            (int) ((Stats.getNumberDocumentExit().get() + Stats.getNumberDocumentNotValid().get()) * 100 / Stats.getNumberDocumentEntry().get()),
                             (Stats.getNumberDocumentExit().get() + Stats.getNumberDocumentNotValid().get()), Stats.getNumberDocumentEntry().get(), etaHms,
                             (int) Stats.getNumberFileTreatedPerSeconds(), (int) (Runtime.getRuntime().totalMemory() / 1048576.0),
                             (int) (Runtime.getRuntime().maxMemory() / 1048576.0)));
-            System.out.print(consoleMsg);
+            Logger.info(consoleMsg);
         }
     }
 }

@@ -1,6 +1,9 @@
 package reader.csv;
 
+import com.aol.cyclops2.internal.stream.ReactiveStreamX;
 import cyclops.async.LazyReact;
+import cyclops.async.QueueFactories;
+import cyclops.collections.mutable.QueueX;
 import cyclops.stream.FutureStream;
 import cyclops.stream.ReactiveSeq;
 import data.Fold;
@@ -18,7 +21,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class StreamCsvParser {
 
@@ -35,10 +40,7 @@ public class StreamCsvParser {
     public ReactiveSeq<Fold> readFileToFold(File file) {
         try {
             final Map<String, Integer> headers = getHeaders(getHeader(file, ","));
-            try (FutureStream<String[]> futureRowStream = new LazyReact(10, 12)
-                    .autoOptimizeOn()
-                    .fromStream(CsvParser.stream(new FileReader(file)).skip(1))) {
-
+            try (ReactiveSeq<String[]> futureRowStream = ReactiveSeq.fromStream(CsvParser.stream(new FileReader(file)).skip(1))) {
                 final CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
                 return futureRowStream.map(StreamCsvParser::toArrayList)
                         .groupBy(row -> row.get(csvIdentifierValidation.validate(csvIdentifiers, row).orElseGet(null).getIndex()))
@@ -64,12 +66,11 @@ public class StreamCsvParser {
                 .orElseGet(() -> new String[0]);
     }
 
-    public FutureStream<Fold> readFolderParallel(File directory) throws ExgedParserException {
+    public Stream<Fold> readFolderParallel(File directory) throws ExgedParserException {
         try {
             verifyFolder(directory);
-            return new LazyReact(100, 110).fromStream(Files.list(directory.toPath()))
+            return  Files.list(directory.toPath())
                     .filter(path -> path.toString().endsWith(".csv"))
-                    .async()
                     .map(Path::toFile)
                     .flatMap(this::readFileToFold);
         } catch (IOException e) {

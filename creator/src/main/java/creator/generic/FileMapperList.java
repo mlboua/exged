@@ -59,6 +59,6 @@ public class FileMapperList implements Creator {
                 )
                 .get(Integer.parseInt(creatorConfig.getArguments().get(2)));   // Get de la valeur demandé dans le resultat de la map
         fold.getData().forEach(row -> row.add(valueToAdd));
-        fold.getHeader().put(creatorConfig.getName(), fold.getData().get(0).indexOf(valueToAdd));
+        fold.getHeader().put(creatorConfig.getName(), fold.getData().get(0).size() - 1);
     }
 }

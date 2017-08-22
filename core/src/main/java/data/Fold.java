@@ -10,6 +10,7 @@ public interface Fold {
 
     List<List<String>> getData();
     Map<String, Integer> getHeader();
+    void setHeader(Map<String, Integer> headers);
 
     String getValue(int rowNumber, int rowIndex);
 

@@ -10,7 +10,7 @@ public class CsvFold implements Fold {
 
     private String id;
     private final List<List<String>> data;
-    private final Map<String, Integer> headers;
+    private Map<String, Integer> headers;
     private FoldStatus foldStatus;
 
     public CsvFold(String id, List<List<String>> data, Map<String, Integer> headers, FoldStatus foldStatus) {
@@ -28,6 +28,11 @@ public class CsvFold implements Fold {
     @Override
     public Map<String, Integer> getHeader() {
         return headers;
+    }
+
+    @Override
+    public void setHeader(Map<String, Integer> headers) {
+        this.headers = headers;
     }
 
     @Override
@@ -65,6 +70,8 @@ public class CsvFold implements Fold {
         return "CsvFold{" +
                 "id='" + id + '\'' +
                 ", data=" + data +
+                ", headers=" + headers +
+                ", foldStatus=" + foldStatus +
                 '}';
     }
 }

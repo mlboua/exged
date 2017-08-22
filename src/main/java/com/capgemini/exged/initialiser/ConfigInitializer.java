@@ -12,12 +12,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class ConfigInitialiser {
+public class ConfigInitializer {
 
     private static final List<String> defaultPathConfig = Arrays.asList("config.yaml", "config.json",
             "config/config.yaml", "config/config.json");
 
-    private ConfigInitialiser() {
+    private ConfigInitializer() {
     }
 
     private static Args readArguments(String... args) {

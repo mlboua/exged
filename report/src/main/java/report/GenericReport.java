@@ -1,8 +1,9 @@
 package report;
 
 import config.mapping.reports.ReportsConfig;
-import cyclops.async.adapters.Topic;
+import cyclops.stream.ReactiveSeq;
 import data.Fold;
+import org.jooq.lambda.tuple.Tuple2;
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
@@ -11,28 +12,33 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class GenericReport {
 
     private GenericReport() {
     }
 
-    public static void createReport(String pathReportDirectory, List<ReportsConfig> reportsConfigList, Topic<Fold> foldTopic) {
+    public static void createReport(String pathReportDirectory, List<ReportsConfig> reportsConfigList, Stream<Fold> foldTopic) {
         reportsConfigList.forEach(reportsConfig -> {
             try (OutputStreamWriter outputStreamWriter =
                          new OutputStreamWriter(new FileOutputStream(new File(pathReportDirectory + File.separator + reportsConfig.getName() + ".csv")))) {
                 if (reportsConfig.getHeaders().get(0).equalsIgnoreCase("all")) {
-                    writeString(outputStreamWriter, setToCsvString(foldTopic.stream().limit(1).findFirst().get().getHeader().keySet()));
-                    foldTopic.stream()
+                    Tuple2<ReactiveSeq<Fold>, ReactiveSeq<Fold>> foldStreamDuplicated = ReactiveSeq.fromStream(foldTopic).duplicate();
+                    writeString(outputStreamWriter, setToCsvString(foldStreamDuplicated.v1.firstValue().getHeader().keySet()));
+                    foldStreamDuplicated.v2
                             .filter(fold -> fold.getStatus() == reportsConfig.getFoldStatus() || "all".equalsIgnoreCase(reportsConfig.getFoldStatus().name()))
-                            .flatMap(fold -> fold.getHeader().keySet().stream().map(header -> fold.getValue(0, header)))
+                            .flatMap(fold -> fold.getHeader().keySet().stream().map(header -> {
+
+                                System.out.println(fold);
+                                return fold.getValue(0, header);
+                            }))
                             .grouped(250)
                             .forEach(csvStringList -> writeString(outputStreamWriter, csvStringList.join("\n")));
                 } else {
                     writeString(outputStreamWriter, GenericReport.listToCsvString(reportsConfig.getHeaders()));
-                    foldTopic.stream()
-                            .filter(fold -> fold.getStatus() == reportsConfig.getFoldStatus() || "all".equalsIgnoreCase(reportsConfig.getFoldStatus().name()))
-                            .flatMap(fold -> reportsConfig.getHeaders().stream().map(header -> fold.getValue(0, header)))
+                    ReactiveSeq.fromStream(foldTopic.filter(fold -> fold.getStatus() == reportsConfig.getFoldStatus() || "all".equalsIgnoreCase(reportsConfig.getFoldStatus().name()))
+                            .flatMap(fold -> reportsConfig.getHeaders().stream().map(header -> fold.getValue(0, header))))
                             .grouped(250)
                             .forEach(csvStringList -> writeString(outputStreamWriter, csvStringList.join("\n")));
                 }

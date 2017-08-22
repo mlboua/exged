@@ -138,7 +138,7 @@ public class Stats {
      * @return the numberFileTreatedPerSeconds
      */
     public static float getNumberFileTreatedPerSeconds() {
-        return getNumberDocumentEntry().get() / (float) (Duration.between(instantStart, Instant.now()).toMillis() / 1000.0);
+        return (numberDocumentNotValid.get() + numberDocumentExit.get()) / (float) (Duration.between(instantStart, Instant.now()).toMillis() / 1000.0);
     }
 
     public static String resume() {
