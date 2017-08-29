@@ -4,32 +4,22 @@
     "type": "CSV",
     "foldStatus": "REJECT",
     "headers": [
-      "all"
-    ]
-  },
-  {
-    "name": "rejectsTrace",
-    "type": "CSV",
-    "foldStatus": "REJECT",
-    "headers": [
       "DOCIDX",
       "DOCIDXGED",
       "DB_NUMPLI",
-      "FILENAMED",
-      "ID_PLI",
-      "CODE_REJET",
-      "DETAIL_REJET"
+      "FLENAMED",
+      "EXGED_ERRORS"
     ]
   },
   {
     "name": "trace",
     "type": "CSV",
-    "foldStatus": "ACCEPT",
+    "foldStatus": "TREATED",
     "headers": [
       "DOCIDX",
       "DOCIDXGED",
       "DB_NUMPLI",
-      "FILENAMED",
+      "FLENAMED",
       "ID_PLI",
       "FILE_NAME"
     ]

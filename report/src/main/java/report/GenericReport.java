@@ -1,66 +1,79 @@
 package report;
 
 import config.mapping.reports.ReportsConfig;
+import cyclops.async.LazyReact;
+import cyclops.collections.mutable.ListX;
+import cyclops.companion.CyclopsCollectors;
+import cyclops.stream.FutureStream;
 import cyclops.stream.ReactiveSeq;
 import data.Fold;
+import data.FoldStatus;
 import org.jooq.lambda.tuple.Tuple2;
 import org.pmw.tinylog.Logger;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class GenericReport {
 
+    private static final Map<String, Path> fileMap = new HashMap<>();
+    private static final Map<String, ListX<String>> headerMap = new HashMap<>();
+
     private GenericReport() {
     }
 
-    public static void createReport(String pathReportDirectory, List<ReportsConfig> reportsConfigList, Stream<Fold> foldTopic) {
-        reportsConfigList.forEach(reportsConfig -> {
-            try (OutputStreamWriter outputStreamWriter =
-                         new OutputStreamWriter(new FileOutputStream(new File(pathReportDirectory + File.separator + reportsConfig.getName() + ".csv")))) {
-                if (reportsConfig.getHeaders().get(0).equalsIgnoreCase("all")) {
-                    Tuple2<ReactiveSeq<Fold>, ReactiveSeq<Fold>> foldStreamDuplicated = ReactiveSeq.fromStream(foldTopic).duplicate();
-                    writeString(outputStreamWriter, setToCsvString(foldStreamDuplicated.v1.firstValue().getHeader().keySet()));
-                    foldStreamDuplicated.v2
-                            .filter(fold -> fold.getStatus() == reportsConfig.getFoldStatus() || "all".equalsIgnoreCase(reportsConfig.getFoldStatus().name()))
-                            .flatMap(fold -> fold.getHeader().keySet().stream().map(header -> {
+    private static void createReportString(String pathReportDirectory, ReportsConfig reportsConfig, List<Fold> foldList) {
+        ListX<Fold> foldListXReport = FoldStatus.ALL.compareTo(reportsConfig.getFoldStatus()) == 0 ?
+                foldList.stream().collect(CyclopsCollectors.toListX())
+                : foldList.stream().filter(fold -> fold.getStatus().compareTo(reportsConfig.getFoldStatus()) == 0).collect(CyclopsCollectors.toListX());
+        if(foldListXReport.isEmpty())
+            return;
+        if(reportsConfig.getFoldStatus().compareTo(FoldStatus.REJECT) == 0)
+            System.out.println(foldListXReport.size());
 
-                                System.out.println(fold);
-                                return fold.getValue(0, header);
-                            }))
-                            .grouped(250)
-                            .forEach(csvStringList -> writeString(outputStreamWriter, csvStringList.join("\n")));
-                } else {
-                    writeString(outputStreamWriter, GenericReport.listToCsvString(reportsConfig.getHeaders()));
-                    ReactiveSeq.fromStream(foldTopic.filter(fold -> fold.getStatus() == reportsConfig.getFoldStatus() || "all".equalsIgnoreCase(reportsConfig.getFoldStatus().name()))
-                            .flatMap(fold -> reportsConfig.getHeaders().stream().map(header -> fold.getValue(0, header))))
-                            .grouped(250)
-                            .forEach(csvStringList -> writeString(outputStreamWriter, csvStringList.join("\n")));
-                }
+        if (!fileMap.containsKey(reportsConfig.getName())) {
+            try {
+                fileMap.put(reportsConfig.getName(), Paths.get(pathReportDirectory + File.separator + reportsConfig.getName() + ".csv"));
+
+                Logger.info("Création du fichier de rapport \""+reportsConfig.getName()+ "\"");
+                headerMap.put(reportsConfig.getName(),
+                        "all".equalsIgnoreCase(reportsConfig.getHeaders().get(0)) ?
+                                ReactiveSeq.fromStream(foldListXReport.get(0).getHeader().keySet().stream()).toListX()
+                                : ReactiveSeq.fromStream(reportsConfig.getHeaders().stream()).toListX());
+
+                Files.write(fileMap.get(reportsConfig.getName()),
+                        headerMap.get(reportsConfig.getName()).join(",").getBytes());
             } catch (IOException e) {
-                Logger.error(e);
+                Logger.error("Impossible de supprimer l'anciens rapport ou créer un nouveau fichier: " + pathReportDirectory + File.separator + reportsConfig.getName() + ".csv, Erreur: " + e);
             }
-        });
-    }
-
-    private static void writeString(OutputStreamWriter outputStreamWriter, String stringToWrite) {
+        }
         try {
-            outputStreamWriter.write(stringToWrite);
+            Files.write(fileMap.get(reportsConfig.getName()),
+                    ReactiveSeq.fromStream(foldListXReport.stream().flatMap(fold ->
+                            fold.getData().stream()
+                                .map(row -> headerMap.get(reportsConfig.getName())
+                                        .map(header -> row.get(fold.getHeader().get(header))).stream().join(",")
+                    )))
+                            .join("\n")
+                            .getBytes(),
+                    StandardOpenOption.APPEND);
         } catch (IOException e) {
-            Logger.error(e);
+            Logger.error("Impossible d'ajouter les plis au fichier de rapport: " + e);
         }
     }
 
-    private static String listToCsvString(List<String> stringList) {
-        return stringList.stream().reduce((leftStr, rigthStr) -> leftStr + "," + rigthStr).orElseGet(null);
-    }
-
-    private static String setToCsvString(Set<String> stringSet) {
-        return stringSet.stream().reduce((leftStr, rigthStr) -> leftStr + "," + rigthStr).orElseGet(null);
+    public static void createReport(String pathReportDirectory, int groupSize, List<ReportsConfig> reportsConfigList, Stream<Fold> foldStream) {
+        FutureStream.builder().fromStream(foldStream)
+        .grouped(groupSize)
+                .forEach(foldList -> reportsConfigList.forEach(reportsConfig -> createReportString(pathReportDirectory, reportsConfig, foldList)));
     }
 }

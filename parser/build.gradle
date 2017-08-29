@@ -13,7 +13,7 @@ dependencies {
     //Parser Stream
     compile "org.simpleflatmapper:sfm-csv:3.12.2"
     // https://mvnrepository.com/artifact/com.univocity/univocity-parsers
-    compile group: 'com.univocity', name: 'univocity-parsers', version: '2.4.1'
+    compile group: 'com.univocity', name: 'univocity-parsers', version: '2.5.3'
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.0'
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.3"

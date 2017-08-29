@@ -1,10 +1,7 @@
 package reader.csv;
 
-import com.aol.cyclops2.internal.stream.ReactiveStreamX;
-import cyclops.async.LazyReact;
-import cyclops.async.QueueFactories;
+import com.aol.cyclops2.data.collections.extensions.lazy.LazyQueueX;
 import cyclops.collections.mutable.QueueX;
-import cyclops.stream.FutureStream;
 import cyclops.stream.ReactiveSeq;
 import data.Fold;
 import data.FoldStatus;
@@ -21,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -42,10 +38,12 @@ public class StreamCsvParser {
             final Map<String, Integer> headers = getHeaders(getHeader(file, ","));
             try (ReactiveSeq<String[]> futureRowStream = ReactiveSeq.fromStream(CsvParser.stream(new FileReader(file)).skip(1))) {
                 final CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
+                final Random random = new Random();
                 return futureRowStream.map(StreamCsvParser::toArrayList)
+                        .peek(row -> row.set(0, Integer.toString(random.nextInt(Integer.MAX_VALUE))))
                         .groupBy(row -> row.get(csvIdentifierValidation.validate(csvIdentifiers, row).orElseGet(null).getIndex()))
                         .stream()
-                        .map(tupleIdRow -> new CsvFold(tupleIdRow.v1, tupleIdRow.v2, headers, FoldStatus.NOTTREATED));
+                        .map(tupleIdRow -> new CsvFold(tupleIdRow.v1, tupleIdRow.v2, new LinkedHashMap<>(headers), FoldStatus.NOTTREATED));
             }
         } catch (IOException e) {
             Logger.error("Impossible de lire le fichier CSV: " + file.getName() + " - " + e);
@@ -70,6 +68,7 @@ public class StreamCsvParser {
         try {
             verifyFolder(directory);
             return  Files.list(directory.toPath())
+                    .parallel()
                     .filter(path -> path.toString().endsWith(".csv"))
                     .map(Path::toFile)
                     .flatMap(this::readFileToFold);

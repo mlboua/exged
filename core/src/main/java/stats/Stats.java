@@ -1,5 +1,8 @@
 package stats;
 
+import cyclops.collections.mutable.MapX;
+import cyclops.stream.ReactiveSeq;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -12,6 +15,7 @@ public class Stats {
     private static Instant instantStart;
 
     private static AtomicInteger numberFilesEntry = new AtomicInteger(0);
+    private static AtomicInteger numberSplittedFiles = new AtomicInteger(0);
 
     private static AtomicInteger numberPliEntry = new AtomicInteger(0);
     private static AtomicLong numberDocumentEntry = new AtomicLong(0L);
@@ -28,6 +32,7 @@ public class Stats {
     public static void init() {
         instantStart = Instant.now();
         numberFilesEntry = new AtomicInteger(0);
+        numberSplittedFiles = new AtomicInteger(0);
         numberPliEntry = new AtomicInteger(0);
         numberDocumentEntry = new AtomicLong(0L);
         numberFileExit = new AtomicInteger(0);
@@ -50,34 +55,41 @@ public class Stats {
         numberFilesEntry.set(numberFilesEntry.get() + value);
     }
 
+    public static void addNumberSplittedFiles(final int value) {
+        numberSplittedFiles.getAndAdd(value);
+    }
+
     public static void addNumberPliEntry(final int numberPliEntry) {
         Stats.numberPliEntry.addAndGet(numberPliEntry);
     }
 
     public static void addNumberDocumentEntry(final int numberDocumentEntry) {
-        Stats.numberDocumentEntry.addAndGet(numberDocumentEntry);
+        Stats.numberDocumentEntry.getAndAdd(numberDocumentEntry);
     }
 
     public static void addNumberFileExit(final int numberFileExit) {
-        Stats.numberFileExit.addAndGet(numberFileExit);
+        Stats.numberFileExit.getAndAdd(numberFileExit);
     }
 
     public static void addNumberPliExit(final int numberPliExit) {
-        Stats.numberPliExit.addAndGet(numberPliExit);
+        Stats.numberPliExit.getAndAdd(numberPliExit);
     }
 
     public static void addNumberDocumentExit(final int numberDocumentExit) {
-        Stats.numberDocumentExit.addAndGet(numberDocumentExit);
+        Stats.numberDocumentExit.getAndAdd(numberDocumentExit);
     }
 
     public static void addNumberPliNotValid(final int numberPliNotValid) {
-        Stats.numberPliNotValid.addAndGet(numberPliNotValid);
+        Stats.numberPliNotValid.getAndAdd(numberPliNotValid);
     }
 
     public static void addNumberDocumentNotValid(final int numberDocumentNotValid) {
-        Stats.numberDocumentNotValid.addAndGet(numberDocumentNotValid);
+        Stats.numberDocumentNotValid.getAndAdd(numberDocumentNotValid);
     }
 
+    public static AtomicInteger getNumberSplittedFiles() {
+        return numberSplittedFiles;
+    }
     /**
      * @return the numberFilesEntry
      */
@@ -141,6 +153,12 @@ public class Stats {
         return (numberDocumentNotValid.get() + numberDocumentExit.get()) / (float) (Duration.between(instantStart, Instant.now()).toMillis() / 1000.0);
     }
 
+    private static String getResumeErrors() {
+        return MapX.fromMap(getRejectCounter()).stream()
+                .map(tupleErrorCounter -> "\t\t"+tupleErrorCounter.v2 + " - " +tupleErrorCounter.v1)
+                .join("\n");
+    }
+
     public static String resume() {
         return "======================== RESUME ========================"
                 + "\n\tTemps d'execution: "
@@ -166,7 +184,9 @@ public class Stats {
                 + numberPliNotValid.get()
                 + "\n\tNombre de documents non valide: "
                 + numberDocumentNotValid.get()
-                + "\n=================== SORTIE TOTAL =================="
+                + "\n\tErreurs: \n"
+                + getResumeErrors()
+                + "\n===================== SORTIE TOTAL ====================="
                 + "\n\tNombre de plis: "
                 + (numberPliNotValid.get() + numberPliExit.get())
                 + "\n\tNombre de documents: "

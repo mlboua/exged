@@ -42,6 +42,9 @@ public class CsvFold implements Fold {
 
     @Override
     public String getValue(int rowNumber, String indexName) {
+        if (!headers.containsKey(indexName) && data.get(rowNumber).get(headers.get(indexName)) == null) {
+            return "";
+        }
         return data.get(rowNumber).get(headers.get(indexName));
     }
 

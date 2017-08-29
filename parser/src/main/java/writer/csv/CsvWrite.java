@@ -8,20 +8,20 @@ import java.util.List;
 
 public class CsvWrite {
 
-    public static void writeCsvFile(File file, String[] headers, List<String[]> rows) {
-        final CsvWriterSettings settings = new CsvWriterSettings();
+    private static final CsvWriterSettings settings = new CsvWriterSettings();
+    static {
         settings.setNullValue("");
         settings.getFormat().setComment('-');
         settings.setEmptyValue("");
         settings.setSkipEmptyLines(true);
+    }
 
-        String[][] allRows = new String[rows.size()][rows.get(0).length];
-        allRows = rows.toArray(allRows);
 
-           // Ecriture du fichier csv
+    public static void writeCsvFile(File file, String[] headers, List<String[]> rows) {
+        // Ecriture du fichier csv
         final CsvWriter writer = new CsvWriter(file, settings);
         writer.writeHeaders(headers);
-        writer.writeRows(allRows);
+        writer.writeRows(rows.toArray(new String[rows.size()][rows.get(0).length]));
         writer.flush();
         writer.close();
     }

@@ -12,10 +12,13 @@ import org.pmw.tinylog.Logger;
 import reader.Reader;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -78,48 +81,51 @@ public class CsvReader implements Reader {
                 .mapToLong(this::countRows).sum();
     }
 
-    public void splitFile(File file, File outputFolder, int numberForEachFile, List<CsvIdentifier> identifiers) throws ExgedParserException {
+    public void splitFile(File file, File outputFolder, int numberForEachFile, List<CsvIdentifier> identifiers, AtomicInteger numberSplittedFiles) throws ExgedParserException {
         final RowListProcessor rowProcessor = new RowListProcessor();
         final CsvParser parser = createCsvParser(rowProcessor);
-        final List<File> files = new ArrayList<>();
+        final AtomicInteger filesCounter = new AtomicInteger(0);
         parser.beginParsing(file);
 
         if (headersExtraction) {
             final Map<String, Integer> headers = getHeaders(parser.getContext().selectedHeaders());
             identifiers.forEach(identifier -> identifier.detectIdentifierIndex(headers));
-
+            parser.stopParsing();
             final List<String[]> rows = new ArrayList<>(numberForEachFile + 20);
-            String idFold = "firstValue";
-
-            parser.beginParsing(file);
-            for (String[] strings : rowProcessor.getRows()) {
-                if (rows.size() >= numberForEachFile) {
-                    CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
-                    Optional<CsvIdentifier> identifier = csvIdentifierValidation.validate(identifiers, Arrays.asList(strings));
-                    if (identifier.isPresent()) {
-                        final int indexId = identifier.get().getIndex();
-                        if ("firstValue".equals(idFold)) {
-                            idFold = strings[indexId];
-                        } else if (!idFold.equals(strings[indexId])) {
-                            File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + files.size() + ".csv");
-                            writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
-                            System.out.println("file split");
-                            files.add(fileSplit);
-                            rows.clear();
+            final List<String> idFold= new ArrayList<>();
+            idFold.add("firstValue");
+            try (Stream<String[]> stream = org.simpleflatmapper.csv.CsvParser.stream(new FileReader(file)).skip(1)) {
+                stream.forEach(strings -> {
+                    if (rows.size() >= numberForEachFile) {
+                        CsvIdentifierValidation csvIdentifierValidation = new CsvIdentifierValidation();
+                        Optional<CsvIdentifier> identifier = csvIdentifierValidation.validate(identifiers, Arrays.asList(strings));
+                        if (identifier.isPresent()) {
+                            final int indexId = identifier.get().getIndex();
+                            if ("firstValue".equals(idFold.get(0))) {
+                                idFold.set(0, strings[indexId]);
+                            } else if (!idFold.get(0).equals(strings[indexId])) {
+                                File fileSplit = new File(outputFolder.getPath() + File.separator + filesCounter.get() + "-" + file.getName().substring(0, file.getName().length() - 4) + ".csv");
+                                writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
+                                filesCounter.getAndAdd(1);
+                                rows.clear();
+                                numberSplittedFiles.getAndAdd(1);
+                            }
+                            rows.add(strings);
+                        } else {
+                            Logger.error("Impossible de trouvé l'ID pour la ligne (" + Arrays.toString(strings) + ")");
                         }
-                        rows.add(strings);
                     } else {
-                        throw new ExgedParserException("Impossible de trouvé l'ID pour la ligne (" + Arrays.toString(strings) + ")");
+                        rows.add(strings);
                     }
-                } else {
-                    rows.add(strings);
-                }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             if (!rows.isEmpty()) {
-                System.out.println("file split");
-                File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + files.size() + ".csv");
+                File fileSplit = new File(outputFolder.getPath() + File.separator + file.getName().substring(0, file.getName().length() - 4) + "-" + filesCounter.get() + ".csv");
                 writeCsvFile(fileSplit, parser.getContext().selectedHeaders(), rows);
             }
+
         } else {
             throw new ExgedParserException("Il faut les en-têtes du fichier CSV afin de le diviser");
         }

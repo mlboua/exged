@@ -29,4 +29,4 @@ resumeFolder: traitement      # Dossier pour la sauvegar des logs et fichiers de
 externFilesPath: .       # Emplacement des fichiers externe
 
 # Autres paramètres de configurations
-tempFilesNumberOfLines: 25000 # Nombre de lignes pour les fichiers temporaires (défaut: 25000) /!\ Une valeur importante peut causer des problèmes mémoire
+tempFilesNumberOfLines: 5000 # Nombre de lignes pour les fichiers temporaires (défaut: 25000) /!\ Une valeur importante peut causer des problèmes mémoire
