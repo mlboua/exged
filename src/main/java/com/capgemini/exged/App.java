@@ -1,5 +1,6 @@
 package com.capgemini.exged;
 
+import com.aol.cyclops2.internal.stream.publisher.PublisherIterable;
 import com.capgemini.exged.exception.ExgedMainException;
 import com.capgemini.exged.initialiser.ConfigInitializer;
 import com.capgemini.exged.process.SplitTask;
@@ -35,6 +36,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class App {
 
@@ -45,11 +47,14 @@ public class App {
             // Chargement en mémoire des fichiers de configuration json/yaml
             ConfigInitializer.initConfig(args);
             // Préparation du lecteur de fichier CSV
-            final CsvReader reader = new CsvReader(true,
+            final StreamCsvParser streamCsvParser = new StreamCsvParser(Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList())); // Parser avec SimpleFlatMapper
+            final CsvReader reader = new CsvReader(true,                                                                                        // Parser avec Univocity
                     Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()));
+
             // Moteur de template
             final TemplateEngineExecutor templateEngineExecutor = new TemplateEngineExecutor(Config.getMainConfig());
 
+            // Validateur et créateur
             final GenericValidator genericValidator = new GenericValidator(Config.getValidators(), Config.getRejects());
             final GenericCreator genericCreator = new GenericCreator(Config.getCreators());
 
@@ -57,38 +62,20 @@ public class App {
             Stats.addNumberDocumentEntry(reader.countRowsFolder(new File(Config.getMainConfig().getInputFolder())).intValue());
             Stats.addNumberFilesEntry((int) java.nio.file.Files.list(Paths.get(Config.getMainConfig().getInputFolder())).count());
 
-
-            //final QueueX<GenericReportRow> rejectQueueX = QueueX.<GenericReportRow>empty().lazy();
-            final Queue<GenericReportRow> rejectQueueX = QueueFactories.<GenericReportRow>unboundedQueue().build();
+            // Fragmentation des fichiers
             Logger.info("Fragmentation des fichiers");
-
-            final Timer spitTimer = new Timer(true);
-            spitTimer.scheduleAtFixedRate(new SplitTask(), 2000, 3000);
-            java.nio.file.Files.list(Paths.get(Config.getMainConfig().getInputFolder()))
-                    .forEach(path -> {
-                        try {
-                            reader.splitFile(path.toFile(),
-                                    new File(Config.getMainConfig().getSplittedTempFolder()),
-                                    Config.getMainConfig().getTempFilesNumberOfLines(),
-                                    Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()),
-                                    Stats.getNumberSplittedFiles());
-                        } catch (ExgedParserException e) {
-                            e.printStackTrace();
-                        }
-                    });
-            spitTimer.cancel();
-            // Lancement des stats dans la console
-            final Timer treatmentTimer = new Timer(true);
-            treatmentTimer.scheduleAtFixedRate(new TreatmentTask(), 2000, 3000);
-
-            Logger.info("Lancement du traitement");
+            splitFiles();
 
             Boolean isProd = Config.getMainConfig().getMode().equalsIgnoreCase("prod");
+            final Queue<GenericReportRow> rejectQueueX = QueueFactories.<GenericReportRow>unboundedQueue().build();         // Queue Infinie contenant les rejets
 
-            StreamCsvParser streamCsvParser = new StreamCsvParser(Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()));
-            try (FutureStream<Fold> folds = new LazyReact(100, 100).fromStream(streamCsvParser.readFolderParallel(new File(Config.getMainConfig().getSplittedTempFolder())))) {
-                ReactiveSeq<Fold> concatStream = folds.map(fold -> new Tuple2<>(fold, genericValidator.validateFold(fold)))
-                        .peek((Tuple2<Fold, Optional<List<DetailReject>>> tupleFoldReject) -> {
+            // Traitement des fichiers fragmenté
+            Logger.info("Lancement du traitement");
+            try (FutureStream<Fold> folds = new LazyReact(100, 100)
+                    .fromStream(streamCsvParser.readFolderParallel(new File(Config.getMainConfig().getSplittedTempFolder())))) {
+
+                Stream<Fold> concatStream = folds.map(fold -> new Tuple2<>(fold, genericValidator.validateFold(fold)))
+                        .peek((Tuple2<Fold, Optional<List<DetailReject>>> tupleFoldReject) -> { // Validation des plis
                                     Stats.addNumberPliEntry(1);
                                     tupleFoldReject.v2.ifPresent(rejectList -> {
                                         rejectList.forEach(reject -> {
@@ -101,19 +88,19 @@ public class App {
                                     });
                                 }
                         )
-                        .filter(tupleFoldReject -> !tupleFoldReject.v2.isPresent())
-                        .map(Tuple2::v1)
-                        .peek(genericCreator::createFields)
-                        .peek(fold -> fold.setId(fold.getValue(0, "ID_PLI")))
-                        .async()
-                        .map(fold -> {
+                        .filter(tupleFoldReject -> !tupleFoldReject.v2.isPresent())     // Enlève les plis rejetés
+                        .map(Tuple2::v1)                                                // Supprime le tuple pour avoir le pli uniquement
+                        .peek(genericCreator::createFields)                             // Création des valeurs supplémentaire
+                        .peek(fold -> fold.setId(fold.getValue(0, "ID_PLI")))            // Changement de l'ID
+                        .async()                                                        // OP Asynchrone pour améliorer les performances
+                        .map(fold -> {                                                  // Création du rendu avec le moteur de template (Rythm engine)
                             Map<String, Object> params = new HashMap<>();
                             params.put("pli", fold.getData());
                             params.put("headers", fold.getHeader());
                             return new Tuple2<>(fold, templateEngineExecutor.render(params));
                         })
-                        .sync()
-                        .filter(tupleFoldRender -> {
+                        .sync()                                                         // Opérations synchrone
+                        .filter(tupleFoldRender -> {                                    // Rejets des plis ayant une erreur pendant le rendu
                             if (tupleFoldRender.v2.isPresent()) {
                                 return true;
                             } else {
@@ -121,13 +108,13 @@ public class App {
                                 return false;
                             }
                         })
-                        .map(tupleFoldRender -> new Tuple3<>(tupleFoldRender.v1,
+                        .map(tupleFoldRender -> new Tuple3<>(tupleFoldRender.v1,       // Création de l'objet File correspondant au fichier de sorti
                                 tupleFoldRender.v2,
                                 new File(Config.getMainConfig().getOutputTempFolder() + File.separator
                                         + detectDate(tupleFoldRender.v1.getValue(0, "DB_DATE_NUM")) + File.separator
                                         + tupleFoldRender.v1.getId() + ".xml")))
-                        .async()
-                        .peek(tupleFoldRenderFile -> {
+                        .async()                                                       // Opération asynchrone car l'I/O  est utilisé
+                        .peek(tupleFoldRenderFile -> {                                 // Créations de sous dossiers
                             try {
                                 java.nio.file.Files.createDirectories(Paths.get(Config.getMainConfig().getOutputTempFolder() + File.separator
                                         + detectDate(tupleFoldRenderFile.v1.getValue(0, "DB_DATE_NUM"))));
@@ -135,14 +122,14 @@ public class App {
                                 Logger.error("Impossible de créer les dossiers parent au fichier d'output: " + e);
                             }
                         })
-                        .peek(tupleFoldRenderFile -> {
+                        .peek(tupleFoldRenderFile -> {                                  // Ecriture du fichier XML sur le disque dur
                             try {
-                                java.nio.file.Files.write(tupleFoldRenderFile.v3.toPath(), XMLUtils.toPrettyString(tupleFoldRenderFile.v2.orElseGet(null), 2).getBytes());
+                                java.nio.file.Files.write(tupleFoldRenderFile.v3.toPath(), XMLUtils.toMinifyString(tupleFoldRenderFile.v2.orElseGet(null)).getBytes());
                             } catch (IOException e) {
                                 Logger.error("Impossible d'écrire sur le système: " + e);
                             }
                         })
-                        .peek(tupleFoldRenderFile -> {
+                        .peek(tupleFoldRenderFile -> {                                  // Copie des fichiers supplémentaire
                             try {
                                 if (isProd) {
                                     Files.copy(new File(Config.getMainConfig().getExternFilesPath() + File.separator +
@@ -159,23 +146,8 @@ public class App {
                                 e.printStackTrace();
                             }
                         })
-                        .map(Tuple3::v1)
-                        .concat(rejectQueueX.stream()
-                                .peek(genericReportRow -> genericReportRow.getFold().setStatus(FoldStatus.REJECT))
-                                .peek(genericReportRow -> {
-                                    genericReportRow.getFold().getData().forEach(row -> row.add(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject()));
-                                    genericReportRow.getFold().getHeader().put("EXGED_ERRORS", genericReportRow.getFold().getData().get(0).size() - 1);
-                                    if (Stats.getRejectCounter().containsKey(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject())) {
-                                        Stats.getRejectCounter().get(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject()).getAndAdd(1);
-                                    } else {
-                                        Stats.getRejectCounter().put(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject(), new AtomicInteger(1));
-                                    }
-                                    Stats.addNumberPliNotValid(1);
-                                    Stats.addNumberDocumentNotValid(genericReportRow.getFold().getData().size());
-                                })
-                                .map(GenericReportRow::getFold)) ;
+                        .map(Tuple3::v1);
                 Logger.info("Traitement des rejets");
-
                 final Timer closeInfiniteStream = new Timer(true);
                 closeInfiniteStream.scheduleAtFixedRate(new TimerTask() {
                     @Override
@@ -190,6 +162,25 @@ public class App {
                         Config.getReports(),
                         concatStream
                 );
+
+                GenericReport.createReport(Config.getMainConfig().getReportsFolder(),
+                        Config.getMainConfig().getTempFilesNumberOfLines(),
+                        Config.getReports(),
+                        rejectQueueX.stream()
+                                .peek(genericReportRow -> genericReportRow.getFold().setStatus(FoldStatus.REJECT))
+                                .peek(genericReportRow -> {
+                                    genericReportRow.getFold().getData().forEach(row -> row.add(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject()));
+                                    genericReportRow.getFold().getHeader().put("EXGED_ERRORS", genericReportRow.getFold().getData().get(0).size() - 1);
+                                    if (Stats.getRejectCounter().containsKey(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject())) {
+                                        Stats.getRejectCounter().get(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject()).getAndAdd(1);
+                                    } else {
+                                        Stats.getRejectCounter().put(genericReportRow.getRejectCode() + " - " + genericReportRow.getDetailReject(), new AtomicInteger(1));
+                                    }
+                                    Stats.addNumberPliNotValid(1);
+                                    Stats.addNumberDocumentNotValid(genericReportRow.getFold().getData().size());
+                                })
+                                .map(GenericReportRow::getFold)
+                );
                 java.nio.file.Files.write(Paths.get(Config.getMainConfig().getReportsFolder() + File.separator + "compteur.txt"), Stats.resume().getBytes());
                 Logger.info("Fin du traitement");
                 Logger.info(Stats.resume());
@@ -199,6 +190,35 @@ public class App {
         } catch (IOException | ExgedMainException | ExgedParserException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Fragmente les fichiers en fonction de la Config
+     *
+     * @throws IOException
+     */
+    private static void splitFiles() throws IOException {
+        final Timer spitTimer = new Timer(true);
+        spitTimer.scheduleAtFixedRate(new SplitTask(), 2000, 3000);
+
+        final CsvReader reader = new CsvReader(true,
+                Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()));         // Parser avec Univocity
+        java.nio.file.Files.list(Paths.get(Config.getMainConfig().getInputFolder()))
+                .forEach(path -> {
+                    try {
+                        reader.splitFile(path.toFile(),
+                                new File(Config.getMainConfig().getSplittedTempFolder()),
+                                Config.getMainConfig().getTempFilesNumberOfLines(),
+                                Config.getIdentifiers().stream().map(CsvIdentifier::new).collect(Collectors.toList()),
+                                Stats.getNumberSplittedFiles());
+                    } catch (ExgedParserException e) {
+                        e.printStackTrace();
+                    }
+                });
+        spitTimer.cancel();
+        // Lancement des stats dans la console
+        final Timer treatmentTimer = new Timer(true);
+        treatmentTimer.scheduleAtFixedRate(new TreatmentTask(), 2000, 3000);
     }
 
     private static String detectDate(String date) {
