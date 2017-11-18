@@ -1,4 +1,4 @@
-Exged
+﻿Exged
 ===================
 
 Exged est une application pour exécuter des migrations.
@@ -11,16 +11,9 @@ Exged est une application pour exécuter des migrations.
 
 Principal:
 - Module delivery (0.5)
-- debug la barre de progression durant le traitement (0.25)
 
 Secondaire:
-- Changer le parser csv pour en utiliser un avec des Stream, ce qui permettra d'éviter de remplir la ram pour la vider ensuite à chaque fichier. (0.5)
 - Simplifier le code des validateurs avec des Predicats quand c'est possible (0.5)
-- Réaliser un module permettant de faire du KotlinScript afin de Simplifier la partie exged pricipale. (Ou faire des DSL Kotlin) (4)
-- Enlever le moteur de rendu pour faire notre propre sysème à l'aide des DSL Kotlin (4)
-
-A voir:
-- Refaire le code en Kotlin pour faire marcher l'application sur toutes les machines avec Java 6 d'installé. (Conversion du code automotisé grâce à IntelliJ) (3)
 
 ## Fonctionnement
 
@@ -44,12 +37,19 @@ validFold(yes)->createFold->changeIDFold->renderFold->deliveryFold->reportCreato
 validFold(no)->rejectBuild->reportCreator->e
 ```
 
+Si le schema ne fonctionne pas, vous pouvez le copier sur ce [site](https://stackedit.io/editor)
+
 
 ## Configuration
 
-Exged possède un fichier de configuration principal qui peut être renseigner avec l'argument **-c**, par défaut l'emplacement du fichier de mainConfig est le même que celui du jar.
-
+Exged possède un fichier de configuration principal qui peut être renseigner avec l'argument **-c**  
+Par défaut l'application cherche le fichier de configuration aux emplacements suivant:
+- "config.yaml"
+- "config.json"
+- "config/config.yaml"
+- "config/config.json"
 Les fichiers de configurations dans le dossier de configuration peuvent être en JSON ou YAML.
+Le fichier iccinput.xsd est le fichier de validation des XML produit (fourni par le client)
 
 ### Identifiers
 
@@ -57,7 +57,7 @@ Nom du ficiher: **identifiers.json/yaml**
 
 Ce fichier de configuration permet de configurer la détection des plis à l'aide de différents identifiant avec leurs règles.
 
-Pour chaque entrée du fichier, l'application va chercher quel est l'identifiant de celle-ci. Il faut donc définir comment trouver l'identifiant de ce pli car il peut y en avoir plusieurs.  
+Pour chaque entrée du fichier, l'application va chercher quel est l'identifiant de celle-ci. Il faut donc définir comment trouver l'identifiant de ce pli car il peut y en avoir plusieurs.
 
 Comme on peut le voir dans les exemples, il y a 3 champs à remplir, qui sont:
 - **name**: ceci correspond au nom du champ dans le fichier d'entrée, ce nom sera utilisé pour la recherche dans le pli
@@ -99,14 +99,41 @@ Nom du ficiher: **validations.json/yaml**
 
 Ce fichier de configuration permet de configurer la validations des plis à l'aide de différents critères.
 
-Pour chaque pli, l'application va tester le pli si il correspond aux attentes de la migration.  
+Pour chaque pli, l'application va tester le pli s'il correspond aux attentes de la migration.  
 
 Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
-- **global**, ce qui correspond à tout les test qui ont besoins de plusieurs en-têtes afin de réaliser le test.
-- **unique**, tout les tests qui ont besoin d'une seule en-tête
+- **global**, ce qui correspond à tous les tests qui ont besoin de tous en-têtes afin de réaliser le test.
+- **unique**, les tests qui sont faits sur une seule en-tête
 
 #### global
+
+**/!\ Aucun validateur créé pour ce module mais la base fonctionne /!\**
+
 Le tableau **global** contient une liste d'entrée permettant de réaliser des validations sur une seule en-tête à la fois, ces tests sont réalisés dans l'ordre définit dans le fichier.
+
+##### Examples
+
+**json:**
+```json
+{
+  "global": [
+    {
+      "name": "test",
+      "headers": [],
+      "arguments": []
+    }
+  ]
+}
+```
+
+**yaml:**
+```yaml
+---
+global:
+- name: test
+  headers: []
+  arguments: []
+```
 
 #### unique
 
@@ -122,14 +149,15 @@ Les validateurs disponible actuellement sont:
 - **simple**
   * **notNull**
   * **unique**
+  * **fileExist**
 - **complex**
   * **notEgalTo**
   * **matchLength**
   * **maxLength**
+  * **minLength**
+  * **fileContent**
 
 Validateurs prévu dans le futur:
-- **simple**
-  * **null**
 - **complex**
   * **egalTo**
   * **matchWithFile**
@@ -348,6 +376,17 @@ Faire en sorte de pouvoir définir une erreur pour un validateur d'une en-tête 
   },
   {
     "code": "Generic-5",
+    "detail": "Des valeurs ne sont presentes dans le fichier de config metier",
+    "validators": {
+      "complex": [
+        {
+          "name": "fileContent"
+        }
+      ]
+    }
+  },
+  {
+    "code": "Generic-6",
     "detail": "Des valeurs ne correspondent pas à la taille indiquée",
     "validators": {
       "complex": [
@@ -358,7 +397,7 @@ Faire en sorte de pouvoir définir une erreur pour un validateur d'une en-tête 
     }
   },
   {
-    "code": "Generic-6",
+    "code": "Generic-7",
     "detail": "Des valeurs sont trop longues",
     "validators": {
       "complex": [
@@ -369,13 +408,31 @@ Faire en sorte de pouvoir définir une erreur pour un validateur d'une en-tête 
     }
   },
   {
-    "code": "Generic-7",
+    "code": "Generic-8",
     "detail": "Des valeurs ne sont pas autorisées",
     "validators": {
       "complex": [
         {
           "name": "notEgalTo"
         }
+      ]
+    }
+  },
+  {
+    "code": "ALLUR/ADHPR-1",
+    "detail": "Plus d'une distribution GED",
+    "validators": {
+      "simple": [
+        "isSingleGEDDistribution"
+      ]
+    }
+  },
+  {
+    "code": "ALLUR/ADHPR-2",
+    "detail": "Distribution courrier rejetée",
+    "validators": {
+      "simple": [
+        "isDistribReject"
       ]
     }
   }
@@ -440,11 +497,36 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
 
 ##### concat
 
+Permet d'assembler différents des en-têtes différentes. Si l'en-tête n'est pas trouvé alors le nom mis dans la configuration sera utilisé.
+Arguments:
+  - 1 -> Délimiteur
+
 ##### subString
+
+Permet de prendre une partie d'une valeur avec un index de fin et de début.
+Arguments:
+  - 1 -> Index de début
+  - 2 -> Index de fin
 
 ##### fileMapperList
 
+Permet de mapper un ficiher.
+Arguments:
+  - 1 -> Chemin vers le fichier
+  - 2 -> Délimiteur du csv
+  - 3 -> index dans la liste
+
+  | Colonne clé | index 0 | index 1 | index 2 | index x |
+  |-------------|---------|---------|---------|---------|
+  | valeur clé  | a       | b       | c       | x       |
+
 ##### counter
+
+Permet de créer un compteur avec plusieurs étapes.
+Les headers sont en lien  avec les arguments.
+Dans l'exemple, "NUM_PLI" est lié avec l'argument "1-999-4" et "NUM_LOT" avec "1-9999-4".
+L'application va donc créer une en-tête "NUM_PLI" commençant à 1 avec comme limite 999 et afficher sur 4 digits.
+
 
 #### Examples
 
@@ -459,8 +541,8 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
       "NUM_LOT"
     ],
     "arguments": [
-      "999",
-      "9999"
+      "1-999-4",
+      "1-9999-3"
     ]
   },
   {
@@ -519,7 +601,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
     ],
     "arguments": [
       "0",
-      "12"
+      "13"
     ]
   },
   {
@@ -551,7 +633,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
       "TYPE_PIECE_COL"
     ],
     "arguments": [
-      "mainConfig/configMetier.csv",
+      "config/mapper/configMetier.csv",
       ",",
       "0"
     ]
@@ -563,7 +645,7 @@ Comme on peut le voir dans les exemples, il y a 2 groupes principaux:
       "TYPE_PIECE_COL"
     ],
     "arguments": [
-      "mainConfig/configMetier.csv",
+      "config/mapper/configMetier.csv",
       ",",
       "1"
     ]
@@ -675,11 +757,9 @@ Ce fichier de configuration permet de configurer la méthode de livraison.
 
 ### reports
 
-Nom du ficiher: **reports.json/yaml**  
+Nom du ficiher: **reports.json/yaml**
 
-Ce fichier de configuration permet de configurer les fichiers de rapports en plus du fichier résumé.
-
-**MODULE A DEFINIR, les examples sont suceptible d'être modifié **
+Ce fichier de configuration permet de configurer les fichiers de rapports.
 
 #### Exemples
 
@@ -688,8 +768,8 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
 [
   {
     "name": "rejects",
-    "type": "csv",
-    "foldStatus": "reject",
+    "type": "CSV",
+    "foldStatus": "REJECT",
     "headers": [
       "DOCIDX",
       "DOCIDXGED",
@@ -702,8 +782,8 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
   },
   {
     "name": "trace",
-    "type": "csv",
-    "foldStatus": "accept",
+    "type": "CSV",
+    "foldStatus": "ACCEPT",
     "headers": [
       "DOCIDX",
       "DOCIDXGED",
@@ -711,6 +791,14 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
       "FILENAMED",
       "ID_PLI",
       "FILE_NAME"
+    ]
+  },
+  {
+    "name": "rejectCopy",
+    "type": "CSV",
+    "foldStatus": "REJECT",
+    "headers": [
+      "all"
     ]
   }
 ]
@@ -720,8 +808,8 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
 ```yaml
 ---
 - name: rejects
-  type: csv
-  foldStatus: reject
+  type: CSV
+  foldStatus: REJECT
   headers:
   - DOCIDX
   - DOCIDXGED
@@ -731,8 +819,8 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
   - CODE_REJET
   - DETAIL_REJET
 - name: trace
-  type: csv
-  foldStatus: accept
+  type: CSV
+  foldStatus: ACCEPT
   headers:
   - DOCIDX
   - DOCIDXGED
@@ -740,6 +828,11 @@ Ce fichier de configuration permet de configurer les fichiers de rapports en plu
   - FILENAMED
   - ID_PLI
   - FILE_NAME
+- name: rejectCopy
+  type: CSV
+  foldStatus: REJECT
+  headers:
+  - all
 ```
 
 ## Modifications du code
@@ -750,16 +843,18 @@ Il faut créer une nouvelle classe dans le module **validation**
 et mettre l'annotation suivate: @ValidatorAnnotation(name = "notNull", type = "simple")
 
 
-
 ### Ajout d'un créateur non existant
 
+Il faut créer une nouvelle classe dans le module **creator**
+et mettre l'annotation suivate: @CreatorAnnotation(name = "concat")
 
 ### Ajout d'une nouvelle méthode de livraison
 
+Le module **delivery** n'est pas finit, cependant cette partie correspond à la dernière étape du flux qui se situe dans la classe App.
 
 ### Modifications trop complexe ou erreurs obscures
 
-Contacter Charles Delorme à l'adresse email: charlesdelormefr@gmail.com
+Contacter Sidiki COULIBALY à l'adresse email: sidiki.coulibaly@capgemini.com
 
 ## Contribution au projet
 
@@ -788,8 +883,6 @@ Contacter Charles Delorme à l'adresse email: charlesdelormefr@gmail.com
 ### Eclipse
 
 Télécharger la version préparé d'eclipse avec les plugins et configuration pour le projet.
-
-**Demander par mail à charles.delorme@capgemini.com (temporaire)**
 
 #### Installation du projet
 
