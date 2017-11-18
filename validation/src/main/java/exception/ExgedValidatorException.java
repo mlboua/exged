@@ -2,7 +2,7 @@ package exception;
 
 public class ExgedValidatorException extends Exception {
 
-    public ExgedValidatorException(String message) {
+    public ExgedValidatorException(final String message) {
         super(message);
     }
 }

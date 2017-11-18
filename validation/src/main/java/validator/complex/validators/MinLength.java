@@ -12,23 +12,17 @@ import validator.ValidatorAnnotation;
 import validator.complex.ComplexValidationCondition;
 import validator.complex.ComplexValidator;
 
-@ValidatorAnnotation(name = "notEgalTo", type = "complex")
-public class NotEgalTo implements ComplexValidationCondition {
+@ValidatorAnnotation(name = "minLength", type = "complex")
+public class MinLength implements ComplexValidationCondition {
 
     @Override
     public Optional<Reject> validate(final String rejectCode, final Fold fold,
             final List<ComplexValidator> complexValidatorList, final Map<String, Integer> headers)
             throws ExgedValidatorException {
         final List<String> collect = fold.getData().stream()
-                .map(row -> complexValidatorList.stream().filter(complexValidator -> complexValidator.getArguments() // Optionnel vérifié au début de la fonction
-                        .stream().anyMatch(value -> {
-                            if (headers.get(complexValidator.getName()) == null
-                                    || row.get(headers.get(complexValidator.getName())) == null
-                                    || "".equals(row.get(headers.get(complexValidator.getName())))) {
-                                return false;
-                            }
-                            return row.get(headers.get(complexValidator.getName())).equals(value);
-                        }))
+                .map(row -> complexValidatorList.stream()
+                        .filter(complexValidator -> row.get(fold.getHeader().get(complexValidator.getName()))
+                                .length() < Integer.parseInt(complexValidator.getArguments().get(1))) // Condition princpale
                         .map(complexValidator -> complexValidator.getName() + " - Line " + fold.getData().indexOf(row))
                         .collect(Collectors.toList()))
                 .flatMap(List::stream).collect(Collectors.toList());
