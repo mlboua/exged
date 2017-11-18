@@ -1,7 +1,5 @@
 package com.capgemini.exged.process;
 
-import stats.Stats;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
