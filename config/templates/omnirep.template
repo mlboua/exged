@@ -5,46 +5,54 @@
     }
 }
 @def xmlElement(String elementName, String header) {
-    @{if(headers.get(header) == null) {System.out.println("Header Introuvable: "+ header);}}
-    <@elementName>@pli.get(0).get(headers.get(header))</@elementName>
+    @if(headers.get(header) == null) {
+		<@elementName></@elementName>
+	} else{
+		<@elementName>@pli.get(0).get(headers.get(header))</@elementName>
+	}
 }
 @compact(){
-        <PLI>
-            <nbDocs>1</nbDocs>
-            <DocumentICC>
-                <InheritedMetaData>
-                    @xmlElement("IdLot", "ID_LOT")
-                    @xmlElement("IdPli", "ID_PLI")
-                    @xmlElement("DateNum", "DB_DATE_NUM")
-                    <NbDocs>1</NbDocs>
-                    <Source>OMNIREP</Source>
-                    <Canal>MI</Canal>
-                    <Filieres>ARC</Filieres>
-                    <Recommande>FAUX</Recommande>
-                    @xmlElement("NumeroBoite", "NUM_BOITE")
-                    <Renum>FAUX</Renum>
-                    @xmlElementNotNull("NIR", "NUMSS_VALUE")
-                    @xmlElementNotNull("CleNIR", "NUMSS_KEY")
-                    @xmlElementNotNull("Nom", "DB_NOM_BENEF")
-                    @xmlElementNotNull("Prenom", "DB_PRN_BENEF")
-                    @xmlElementNotNull("RaisonSociale", "RAISON_SOCIALE")
-                    @xmlElementNotNull("SIRET", "SIRET_AFE")
-                </InheritedMetaData>
-                <DirectMetaData>
-                    @xmlElementNotNull("RefOrigine", "DOCIDX")
-                    <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
-                    @xmlElement("FileName", "FILE_NAME")
-                    @xmlElement("Titre", "TITRE")
-                    @xmlElement("IdDocTN", "DB_NUMPLI")
-                    <ModeVideocodage>FAUX</ModeVideocodage>
-                    @xmlElement("Type", "TYPE_PIECE")
-                    @xmlElement("SousType", "SOUS_TYPE_PIECE")
-                    <DocumentMaitre>FAUX</DocumentMaitre>
-                    <Confidentiel>FAUX</Confidentiel>
-                    <Medical>FAUX</Medical>
-                    <Interne>FAUX</Interne>
-                    <NbPages>1</NbPages>
-                </DirectMetaData>
-            </DocumentICC>
-        </PLI>
+	
+	
+		<DocumentICC>
+			<InheritedMetaData>
+				@xmlElement("IdLot", "ID_LOT")
+				@xmlElement("IdPli", "ID_PLI")
+				@xmlElement("DateNum", "DB_DATE_NUM")
+				<NbDocs>1</NbDocs>
+				<Source>OMNIREP</Source>
+				<Canal>MI</Canal>
+				<Filieres>ARC</Filieres>
+				<Recommande>FALSE</Recommande>
+				@xmlElement("NumeroBoite", "NUM_BOITE")
+				<Renum>FALSE</Renum>
+				@xmlElement("NIR", "NUMSS_VALUE")
+				@xmlElement("CleNIR", "NUMSS_KEY")
+				@xmlElement("Nom", "DB_NOM_BENEF")
+				@xmlElement("Prenom", "DB_PRN_BENEF")
+				@xmlElement("RaisonSociale", "RAISON_SOCIALE")
+				@xmlElement("SIRET", "SIRET_AFE")
+				@xmlElement("RefOrigine", "DOCIDX")
+				<NumeroContrats>
+					<NumeroContrat/>
+				</NumeroContrats>
+				<Portefeuille>-</Portefeuille>
+				<NumRecommande></NumRecommande>
+				<MailReception></MailReception>
+			</InheritedMetaData> 
+			<DirectMetaData>
+				<Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+				@xmlElement("FileName", "FILE_NAME")
+				@xmlElement("Titre", "TITRE")
+				@xmlElement("IdDocTN", "DB_NUMPLI")
+				<ModeVideocodage>FALSE</ModeVideocodage>
+				@xmlElement("Type", "TYPE_PIECE")
+				@xmlElement("SousType", "SOUS_TYPE_PIECE")
+				<DocumentMaitre>FALSE</DocumentMaitre>
+				<Confidentiel>FALSE</Confidentiel>
+				<Medical>FALSE</Medical>
+				<Interne>FALSE</Interne>
+				<NbPages>1</NbPages>
+			</DirectMetaData>
+		</DocumentICC>
 }

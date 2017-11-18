@@ -1,0 +1,53 @@
+@args List<List<String>> pli, Map<String, Integer> headers
+@def xmlElementNotNull(String elementName, String header) {
+    @if (headers.get(header) != null && pli.get(0).get(headers.get(header)) != null && !"".equals(pli.get(0).get(headers.get(header)))) {
+        @xmlElement(elementName, header)
+    }
+}
+@def xmlElement(String elementName, String header) {
+    @{if(headers.get(header) == null) {System.out.println("Header Introuvable: "+ header);}}
+    <@elementName>@pli.get(0).get(headers.get(header))</@elementName>
+}
+@compact(){
+        <PLI>
+            <nbDocs>1</nbDocs>
+            <DocumentICC>
+                <InheritedMetaData>
+                    @xmlElementNotNull("RefOrigine", "DOCIDX")
+                    @xmlElement("IdLot", "ID_LOT")
+                    @xmlElement("IdPli", "ID_PLI")
+                    @xmlElement("DateNum", "DB_DATE_NUM")
+                    <NbDocs>1</NbDocs>
+                    <Source>OMNIREP</Source>
+                    <Canal>MI</Canal>
+                    <Filieres>ARC</Filieres>
+                    <Recommande>FALSE</Recommande>
+                    @xmlElement("NumeroBoite", "NUM_BOITE")
+                    <Renum>FALSE</Renum>
+                    @xmlElementNotNull("NIR", "NUMSS_VALUE")
+                    @xmlElementNotNull("CleNIR", "NUMSS_KEY")
+                    @xmlElementNotNull("Nom", "DB_NOM_BENEF")
+                    @xmlElementNotNull("Prenom", "DB_PRN_BENEF")
+                    @xmlElementNotNull("RaisonSociale", "RAISON_SOCIALE")
+                    @xmlElementNotNull("SIRET", "SIRET_AFE")
+                </InheritedMetaData> 
+                <DirectMetaData>
+                    <Portefeuille>-</Portefeuille>
+                    <NumRecommande></NumRecommande>
+                    <MailReception></MailReception>
+                    <Path>\\nas-ged\E0XSxGEAICC\ICC\INPUT\ARC</Path>
+                    @xmlElement("FileName", "FILE_NAME")
+                    @xmlElement("Titre", "TITRE")
+                    @xmlElement("IdDocTN", "DB_NUMPLI")
+                    <ModeVideocodage>FALSE</ModeVideocodage>
+                    @xmlElement("Type", "TYPE_PIECE")
+                    @xmlElement("SousType", "SOUS_TYPE_PIECE")
+                    <DocumentMaitre>FALSE</DocumentMaitre>
+                    <Confidentiel>FALSE</Confidentiel>
+                    <Medical>FALSE</Medical>
+                    <Interne>FALSE</Interne>
+                    <NbPages>1</NbPages>
+                </DirectMetaData>
+            </DocumentICC>
+        </PLI>
+}

@@ -1,14 +1,14 @@
 package config.mapping.mainconfig;
 
+import java.io.File;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.io.File;
 
 public class MainConfig {
 
     // Global
-    private final String idTreatement;
+    private final String idTreatment;
     private final String migration;
     private final String mode;
 
@@ -30,19 +30,22 @@ public class MainConfig {
 
     private final int tempFilesNumberOfLines;
 
+    private final String xsdValidator;
+
+    private final String csvDelimiter;
+
     @JsonCreator
-    public MainConfig(
-            @JsonProperty("idTreatement") final String idTreatement,
-            @JsonProperty("migration") final String migration,
-            @JsonProperty("mode") final String mode,
+    public MainConfig(@JsonProperty("idTreatment") final String idTreatment,
+            @JsonProperty("migration") final String migration, @JsonProperty("mode") final String mode,
             @JsonProperty("tempFilesNumberOfLines") final int tempFilesNumberOfLines,
-            @JsonProperty("inputFolder") final String inputFolder,
-            @JsonProperty("tempFolder") final String tempFolder,
+            @JsonProperty("inputFolder") final String inputFolder, @JsonProperty("tempFolder") final String tempFolder,
             @JsonProperty("externFilesPath") final String externFilesPath,
             @JsonProperty("resumeFolder") final String resumeFolder,
             @JsonProperty("configFolder") final String configFolder,
+            @JsonProperty("xsdValidator") final String xsdValidator,
+            @JsonProperty("csvDelimiter") final String csvDelimiter,
             @JsonProperty("outputFolder") final String outputFolder) {
-        this.idTreatement = idTreatement;
+        this.idTreatment = idTreatment;
         this.migration = migration;
         this.mode = mode;
         this.tempFilesNumberOfLines = tempFilesNumberOfLines;
@@ -50,18 +53,20 @@ public class MainConfig {
         this.externFilesPath = externFilesPath;
         this.resumeFolder = resumeFolder;
         this.configFolder = configFolder;
+        this.xsdValidator = xsdValidator;
+        this.csvDelimiter = csvDelimiter;
 
-        this.inputFolder = inputFolder + File.separator + idTreatement;
-        splittedTempFolder = tempFolder + File.separator + idTreatement + File.separator + "splitted";
-        outputTempFolder = tempFolder + File.separator + idTreatement + File.separator + "output";
-        logFolder = resumeFolder + File.separator + idTreatement + File.separator + "logs";
-        reportsFolder = resumeFolder + File.separator + idTreatement + File.separator + "reports";
+        this.inputFolder = inputFolder + File.separator + idTreatment;
+        splittedTempFolder = tempFolder + File.separator + idTreatment + File.separator + "splitted";
+        outputTempFolder = tempFolder + File.separator + idTreatment + File.separator + "output";
+        logFolder = resumeFolder + File.separator + idTreatment + File.separator + "logs";
+        reportsFolder = resumeFolder + File.separator + idTreatment + File.separator + "reports";
         templateFolder = configFolder + File.separator + "templates";
-        this.outputFolder = outputFolder + File.separator + idTreatement;
+        this.outputFolder = outputFolder + File.separator + idTreatment;
     }
 
-    public String getIdTreatement() {
-        return idTreatement;
+    public String getIdTreatment() {
+        return idTreatment;
     }
 
     public String getMigration() {
@@ -120,24 +125,23 @@ public class MainConfig {
         return tempFilesNumberOfLines;
     }
 
+    public String getXsdValidator() {
+        return xsdValidator;
+    }
+
+    public String getCsvDelimiter() {
+        return csvDelimiter;
+    }
+
     @Override
     public String toString() {
-        return "MainConfig{" +
-                "idTreatement='" + idTreatement + '\'' +
-                ", migration='" + migration + '\'' +
-                ", mode='" + mode + '\'' +
-                ", configFolder='" + configFolder + '\'' +
-                ", inputFolder='" + inputFolder + '\'' +
-                ", tempFolder='" + tempFolder + '\'' +
-                ", splittedTempFolder='" + splittedTempFolder + '\'' +
-                ", outputTempFolder='" + outputTempFolder + '\'' +
-                ", resumeFolder='" + resumeFolder + '\'' +
-                ", outputFolder='" + outputFolder + '\'' +
-                ", externFilesPath='" + externFilesPath + '\'' +
-                ", logFolder='" + logFolder + '\'' +
-                ", reportsFolder='" + reportsFolder + '\'' +
-                ", templateFolder='" + templateFolder + '\'' +
-                ", tempFilesNumberOfLines=" + tempFilesNumberOfLines +
-                '}';
+        return "MainConfig{" + "idTreatment='" + idTreatment + '\'' + ", migration='" + migration + '\'' + ", mode='"
+                + mode + '\'' + ", configFolder='" + configFolder + '\'' + ", inputFolder='" + inputFolder + '\''
+                + ", tempFolder='" + tempFolder + '\'' + ", splittedTempFolder='" + splittedTempFolder + '\''
+                + ", outputTempFolder='" + outputTempFolder + '\'' + ", resumeFolder='" + resumeFolder + '\''
+                + ", outputFolder='" + outputFolder + '\'' + ", externFilesPath='" + externFilesPath + '\''
+                + ", logFolder='" + logFolder + '\'' + ", reportsFolder='" + reportsFolder + '\'' + ", templateFolder='"
+                + templateFolder + '\'' + ", tempFilesNumberOfLines=" + tempFilesNumberOfLines + ", xsdValidator = '"
+                + xsdValidator + "', csvDelimiter = '" + csvDelimiter + "'" + '}';
     }
 }

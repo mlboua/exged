@@ -38,6 +38,17 @@
   },
   {
     "code": "Generic-5",
+    "detail": "Des valeurs ne sont presentes dans le fichier de config metier",
+    "validators": {
+      "complex": [
+        {
+          "name": "fileContent"
+        }
+      ]
+    }
+  },
+  {
+    "code": "Generic-6",
     "detail": "Des valeurs ne correspondent pas à la taille indiquée",
     "validators": {
       "complex": [
@@ -48,7 +59,7 @@
     }
   },
   {
-    "code": "Generic-6",
+    "code": "Generic-7",
     "detail": "Des valeurs sont trop longues",
     "validators": {
       "complex": [
@@ -59,7 +70,7 @@
     }
   },
   {
-    "code": "Generic-7",
+    "code": "Generic-8",
     "detail": "Des valeurs ne sont pas autorisées",
     "validators": {
       "complex": [

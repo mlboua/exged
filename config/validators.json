@@ -2,6 +2,46 @@
   "global": [],
   "unique": [
     {
+      "name": "DOCIDX",
+      "validators": {
+        "simple": [
+          "notNull"
+        ]
+      }
+    },
+    {
+      "name": "DB_FIC",
+      "validators": {
+        "simple": [
+          "notNull"
+        ]
+      }
+    },
+    {
+      "name": "DOCIDXGED",
+      "validators": {
+        "simple": [
+          "notNull"
+        ]
+      }
+    },
+    {
+      "name": "TYPE_PIECE_COL",
+      "validators": {
+        "simple": [
+              "notNull"
+        ],
+        "complex": [
+          {
+            "name": "fileContent",
+            "arguments": [
+              "config/mapper/configMetier.csv"
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "SERVICE",
       "validators": {
         "simple": [
@@ -43,15 +83,10 @@
       }
     },
     {
-      "name": "NUMSS",
+      "name": "FLENAMED",
       "validators": {
-        "complex": [
-          {
-            "name": "matchLength",
-            "arguments": [
-              "15"
-            ]
-          }
+        "simple": [
+          "fileExist"
         ]
       }
     }

@@ -15,18 +15,20 @@
 # Pour plus d'informations, veuillez lire le readme.md
 ---
 # Global
-idTreatement: TEST_1          # Identifiant du traitement, cet identifiant est utilisé pour classer les différents traitement
+idTreatment: omnirep          # Identifiant du traitement, cet identifiant est utilisé pour classer les différents traitement
 migration: omnirep            # Exemple: allur | adhpr | omnirep
-mode: dev                     # dev (ne copie pas les fichiers externe) | prod
+mode: prod                     # dev (ne copie pas les fichiers externe) | prod
 
 # Configuration des chemins
 configFolder: config         # Emplacement du dossier de configuration avec les autres fichiers de configuration
 
-inputFolder: input            # Dossier d'entrée pour les fichiers
+inputFolder: input            # Dossier d'entrée pour les fichiers (les fichier sont à placer dans "inputFolder/idTreatment". exemple: "in/omnirep")
 tempFolder: temp              # Dossier temporaire pour les traitement (fichiers fragmentés, fichiers générés avec le template)
-outputFolder: archives        # Dossier de sortie de l'application
+outputFolder: outputFolder    # Dossier de sortie de l'application
 resumeFolder: traitement      # Dossier pour la sauvegar des logs et fichiers de rapports
-externFilesPath: .       # Emplacement des fichiers externe
+externFilesPath: tiff       # Emplacement des fichiers externe
 
+xsdValidator: config/iccinput.xsd               #Fichier XSD de validation des XML de sortie
+csvDelimiter: "|"        #Delimiter des colonnes des fichiers CSV d'entrée
 # Autres paramètres de configurations
 tempFilesNumberOfLines: 5000 # Nombre de lignes pour les fichiers temporaires (défaut: 25000) /!\ Une valeur importante peut causer des problèmes mémoire

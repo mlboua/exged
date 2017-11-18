@@ -4,11 +4,11 @@ import data.Fold;
 
 public class GenericReportRow {
 
-    private String rejectCode;
-    private String detailReject;
-    private Fold fold;
+    private final String rejectCode;
+    private final String detailReject;
+    private final Fold   fold;
 
-    public GenericReportRow(String rejectCode, String detailReject, Fold fold) {
+    public GenericReportRow(final String rejectCode, final String detailReject, final Fold fold) {
         this.rejectCode = rejectCode;
         this.detailReject = detailReject;
         this.fold = fold;
@@ -28,10 +28,7 @@ public class GenericReportRow {
 
     @Override
     public String toString() {
-        return "GenericReportRow{" +
-                "rejectCode='" + rejectCode + '\'' +
-                ", detailReject='" + detailReject + '\'' +
-                ", fold=" + fold +
-                '}';
+        return "GenericReportRow{" + "rejectCode='" + rejectCode + '\'' + ", detailReject='" + detailReject + '\''
+                + ", fold=" + fold + '}';
     }
 }

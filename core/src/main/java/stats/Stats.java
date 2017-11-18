@@ -1,10 +1,11 @@
 package stats;
 
+import config.Config;
 import cyclops.collections.mutable.MapX;
-import cyclops.stream.ReactiveSeq;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -161,11 +162,32 @@ public class Stats {
 
     public static String resume() {
         return "======================== RESUME ========================"
+                + "\n\tExGED version: "
+                + (Stats.class.getPackage().getImplementationVersion() == null ? "dev" : Stats.class.getPackage().getImplementationVersion())
+                + "\n\tNom de la migration: "
+                + Config.getMainConfig().getMigration()
+                + "\n\tNom du traitement: "
+                + Config.getMainConfig().getIdTreatment()
+                + "\n\tMode: "
+                + Config.getMainConfig().getMode()
+                + "\n\tHeure d'execution: "
+                + Date.from(Instant.now())
                 + "\n\tTemps d'execution: "
                 + (Duration.between(instantStart, Instant.now()).toMillis() / 1000.0)
                 + "\n\tNombre de documents traités par secondes: "
                 + getNumberFileTreatedPerSeconds()
-                + "\n======================== ENTREE ========================"
+                + "\n=================== CHEMINS ========================"
+                + "\n\tDossier d'entrée: "
+                + Config.getMainConfig().getInputFolder()
+                + "\n\tDossier de sortie: "
+                + Config.getMainConfig().getOutputFolder()
+                + "\n\tRapports et Logs: "
+                + Config.getMainConfig().getResumeFolder()
+                + "\n\tDossier temporaire: "
+                + Config.getMainConfig().getTempFolder()
+                + "\n\tDossier de configuration: "
+                + Config.getMainConfig().getConfigFolder()
+                + "\n=================== ENTREE ========================"
                 + "\n\tNombre de fichiers d'entrée traités: "
                 + numberFilesEntry.get()
                 + "\n\tNombre de plis en entrée: "

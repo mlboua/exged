@@ -23,5 +23,13 @@
       "ID_PLI",
       "FILE_NAME"
     ]
+  },
+  {
+    "name": "rejectCopy",
+    "type": "CSV",
+    "foldStatus": "REJECT",
+    "headers": [
+      "all"
+    ]
   }
 ]

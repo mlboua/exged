@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="DocumentICC">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="InheritedMetaData">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="IdLot" type="xs:string"></xs:element>
+							<xs:element name="IdPli" type="xs:string"></xs:element>
+							<xs:element name="DateNum" type="xs:string"></xs:element>
+							<xs:element name="NbDocs" type="xs:string"></xs:element>
+							<xs:element name="Source" type="xs:string"></xs:element>
+							<xs:element name="Canal" type="xs:string"></xs:element>
+							<xs:element name="Filieres" type="xs:string"></xs:element>
+							<xs:element name="Recommande" type="xs:string"></xs:element>
+							<xs:element name="NumeroBoite" type="xs:string"></xs:element>
+							<xs:element name="Renum" type="xs:string"></xs:element>
+							<xs:element name="NIR" type="xs:string"></xs:element>
+							<xs:element name="CleNIR" type="xs:string"></xs:element>
+							<xs:element name="Nom" type="xs:string"></xs:element>
+							<xs:element name="Prenom" type="xs:string"></xs:element>
+							<xs:element name="RaisonSociale" type="xs:string" ></xs:element>
+							<xs:element name="SIRET" type="xs:string"></xs:element>
+							<xs:element name="RefOrigine" type="xs:string"></xs:element>
+							<xs:element name="NumeroContrats">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="NumeroContrat" maxOccurs="unbounded" type="xs:string"></xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Portefeuille" type="xs:string"></xs:element>
+							<xs:element name="NumRecommande" type="xs:string"></xs:element>
+							<xs:element name="MailReception" type="xs:string"></xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DirectMetaData">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Path" type="xs:string"></xs:element>
+							<xs:element name="FileName" type="xs:string"></xs:element>
+							<xs:element name="Titre" type="xs:string"></xs:element>
+							<xs:element name="IdDocTN" type="xs:string"></xs:element>
+							<xs:element name="ModeVideocodage" type="xs:string"></xs:element>
+							<xs:element name="Type" type="xs:string"></xs:element>
+							<xs:element name="SousType" type="xs:string"></xs:element>
+							<xs:element name="DocumentMaitre" type="xs:string"></xs:element>
+							<xs:element name="Confidentiel" type="xs:string"></xs:element>
+							<xs:element name="Medical" type="xs:string"></xs:element>
+							<xs:element name="Interne" type="xs:string"></xs:element>
+							<xs:element name="NbPages" type="xs:string"></xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
